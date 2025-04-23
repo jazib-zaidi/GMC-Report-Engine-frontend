@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.react-datepicker-wrapper {
+  display: inline-block;
+}
+
+.react-datepicker {
+  @apply border border-gray-200 rounded-lg shadow-lg bg-white;
+}
+
+.react-datepicker__header {
+  @apply bg-gray-50 border-b border-gray-200 rounded-t-lg;
+}
+
+.react-datepicker__current-month {
+  @apply text-sm font-semibold text-gray-900 py-2;
+}
+
+.react-datepicker__day-name {
+  @apply text-xs text-gray-500 w-8 py-1;
+}
+
+.react-datepicker__day {
+  @apply text-sm text-gray-700 w-8 py-1 hover:bg-gray-100 rounded;
+}
+
+.react-datepicker__day--selected {
+  @apply bg-primary-600 text-white hover:bg-primary-700;
+}
+
+.react-datepicker__day--keyboard-selected {
+  @apply bg-primary-100 text-primary-700;
+}
+
+.react-datepicker__navigation {
+  @apply top-2;
+}
+
+.react-datepicker__navigation-icon::before {
+  @apply border-gray-400;
+}
+
+.react-datepicker__input-container input {
+  @apply text-center;
+}
+.shadow-custom {
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 5px 10px 0px;
+  /* background-color: #fffdf8; */
+}
+.loader {
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
