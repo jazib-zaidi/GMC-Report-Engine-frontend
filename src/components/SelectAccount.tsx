@@ -9,7 +9,7 @@ const SelectAccount = () => {
     user,
     logout,
     merchantAccounts,
-    fetchMerchantAccounts,
+
     setMerchantSelect,
     setReportData,
     merchantSelect,
