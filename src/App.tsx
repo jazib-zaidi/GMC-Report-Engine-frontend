@@ -15,7 +15,9 @@ import CustomReportBuilder from './pages/CustomReportBuilderPage';
 
 function App() {
   axios.defaults.baseURL = import.meta.env.VITE_API_URL;
+  const g = import.meta.env.VITE_API_URL;
 
+  console.log('env', g);
   return (
     <AuthProvider>
       <Router>
