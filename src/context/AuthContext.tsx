@@ -101,9 +101,12 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({
     try {
       if (!user) return;
 
-      const response = await axios.get('/api/merchant_account_list', {
-        withCredentials: true,
-      });
+      const response = await axios.get(
+        'https://gmc-report-engine-backend-production.up.railway.app/api/merchant_account_list',
+        {
+          withCredentials: true,
+        }
+      );
 
       const merchantAccounts = response.data.accounts;
 
@@ -116,7 +119,7 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({
   const fetchReports = async (gmcAccountId: string, date) => {
     try {
       const response = await axios.post(
-        '/api/fetch_reports',
+        'https://gmc-report-engine-backend-production.up.railway.app/api/fetch_reports',
         {
           gmcAccountId,
           date,

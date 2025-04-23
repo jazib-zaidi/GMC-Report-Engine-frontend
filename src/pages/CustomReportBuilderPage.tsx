@@ -34,7 +34,7 @@ export default function CustomReportBuilder() {
       }, 300);
 
       const response = await axios.post(
-        '/api/google-sheet',
+        'https://gmc-report-engine-backend-production.up.railway.app/api/google-sheet',
         {
           reportName,
           selectedDateRange,
