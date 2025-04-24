@@ -9,7 +9,10 @@ const WelcomeDashboard = () => {
 
   const fetchAcount = async () => {
     const g = await axios.get(
-      'https://gmc-report-engine-backend-production.up.railway.app/test'
+      'https://gmc-report-engine-backend-production.up.railway.app/test',
+      {
+        withCredentials: true,
+      }
     );
     console.log(g);
     fetchMerchantAccounts();
