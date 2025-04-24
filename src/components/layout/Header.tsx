@@ -19,13 +19,17 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, sidebarOpen }) => {
     user,
     logout,
     merchantAccounts,
-
+    fetchMerchantAccounts,
     fetchReports,
     setReportData,
     setMerchantSelect,
     selectedDateRange,
     merchantSelect,
   } = useAuth();
+
+  useEffect(() => {
+    fetchMerchantAccounts();
+  }, []);
 
   useEffect(() => {
     if (merchantSelect?.id && selectedDateRange) {

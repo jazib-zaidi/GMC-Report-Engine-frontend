@@ -2,22 +2,8 @@ import React from 'react';
 import { UserCircle, ArrowUp, Search, Sparkles } from 'lucide-react';
 import SelectAccount from '../SelectAccount';
 import { useAuth } from '../../context/AuthContext';
-import axios from 'axios';
 
 const WelcomeDashboard = () => {
-  const { fetchMerchantAccounts } = useAuth();
-
-  const fetchAcount = async () => {
-    const g = await axios.get(
-      'https://gmc-report-engine-backend-production.up.railway.app/test',
-      {
-        withCredentials: true,
-      }
-    );
-    console.log(g);
-    fetchMerchantAccounts();
-  };
-
   return (
     <div className='flex items-center justify-center '>
       {/* Glass morphism card */}
@@ -46,14 +32,6 @@ const WelcomeDashboard = () => {
             {/* Interactive pointer with animation */}
             <div className='mt-8 group cursor-pointer'>
               <SelectAccount />
-            </div>
-            <div className='flex justify-center mt-4'>
-              <button
-                onClick={fetchAcount}
-                className='bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition duration-200'
-              >
-                Fetch Account
-              </button>
             </div>
           </div>
         </div>
