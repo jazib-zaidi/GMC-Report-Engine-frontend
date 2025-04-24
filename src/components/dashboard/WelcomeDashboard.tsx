@@ -2,11 +2,16 @@ import React from 'react';
 import { UserCircle, ArrowUp, Search, Sparkles } from 'lucide-react';
 import SelectAccount from '../SelectAccount';
 import { useAuth } from '../../context/AuthContext';
+import axios from 'axios';
 
 const WelcomeDashboard = () => {
   const { fetchMerchantAccounts } = useAuth();
 
-  const fetchAcount = () => {
+  const fetchAcount = async () => {
+    const g = await axios.get(
+      'https://gmc-report-engine-backend-production.up.railway.app/test'
+    );
+    console.log(g);
     fetchMerchantAccounts();
   };
 
