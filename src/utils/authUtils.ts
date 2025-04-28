@@ -6,7 +6,7 @@ export const authenticateWithGoogle = async (): Promise<User> => {
   const url = `${import.meta.env.VITE_API_URL}`;
   const response = await axios.get(url);
 
-  window.open(response.data.authUrl);
+  window.location.href = response.data.authUrl;
   const user: User = {
     id: 'user123',
     name: 'John Doe',
@@ -16,22 +16,6 @@ export const authenticateWithGoogle = async (): Promise<User> => {
   };
 
   localStorage.setItem('user', JSON.stringify(user));
-
-  // return new Promise((resolve) => {
-
-  //   setTimeout(() => {
-  //     // const user: User = {
-  //     //   id: 'user123',
-  //     //   name: 'John Doe',
-  //     //   email: 'john.doe@example.com',
-  //     //   imageUrl: 'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=150',
-  //     // };
-
-  //     localStorage.setItem('user', JSON.stringify(user));
-
-  //     resolve(user);
-  //   }, 1500);
-  // });
 };
 
 export const getUser = (): User | null => {

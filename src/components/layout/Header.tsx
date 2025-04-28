@@ -27,6 +27,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, sidebarOpen }) => {
     selectedDateRange,
     merchantSelect,
     filter,
+    fetchGoogleProductCategory,
   } = useAuth();
 
   useEffect(() => {
@@ -35,12 +36,28 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, sidebarOpen }) => {
 
   useEffect(() => {
     if (merchantSelect?.id && selectedDateRange) {
+      toast.promise(fetchGoogleProductCategory(merchantSelect?.id), {
+        loading: <b> Fetching Google Product Category, please wait...</b>,
+        success: <b>Google Product Category successfully loaded!</b>,
+        error: (
+          <b>
+            Failed to load Google Product Category. Please try refreshing the
+            page. or Login again
+          </b>
+        ),
+      });
+
       toast.promise(
         fetchReports(merchantSelect.id, selectedDateRange, filter),
         {
           loading: <b> Fetching reports, please wait...</b>,
           success: <b>Reports successfully loaded!</b>,
-          error: <b>Failed to load reports. Please try refreshing the page.</b>,
+          error: (
+            <b>
+              Failed to load reports. Please try refreshing the page. or Login
+              again
+            </b>
+          ),
         }
       );
     }

@@ -12,6 +12,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../../utils/cn';
 import { Progress } from '../../utils/Progress';
 import toast from 'react-hot-toast';
+import { useAuth } from '../../context/AuthContext';
 
 // Types
 interface FileWithPath extends File {
@@ -40,7 +41,7 @@ const ExcelImportScreen = ({ setUploadedData }) => {
   const [optimizationStarted, setOptimizationStarted] = useState(false);
   const [isDragActive, setIsDragActive] = useState(false);
   const [progress, setProgress] = useState(0);
-
+  const { merchantSelect } = useAuth();
   // Handlers
   const handleFileChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -129,7 +130,9 @@ const ExcelImportScreen = ({ setUploadedData }) => {
     import('axios').then(({ default: axios }) => {
       axios
         .post(
-          `${import.meta.env.VITE_API_URL}/api/upload-xlsx${authToken()}`,
+          `${
+            import.meta.env.VITE_API_URL
+          }/api/upload-xlsx${authToken()}&gmcAccountId=${merchantSelect.id}`,
           formData,
           {
             headers: {

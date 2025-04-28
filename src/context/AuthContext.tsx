@@ -6,7 +6,6 @@ import {
   authenticateWithGoogle,
   logoutUser,
 } from '../utils/authUtils';
-import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 type MerchantSelect = {
@@ -128,6 +127,22 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({
     }
   };
 
+  const fetchGoogleProductCategory = async (gmcAccountId) => {
+    const url = `${
+      import.meta.env.VITE_API_URL
+    }/api/get-google-product-category${authToken()}&gmcAccountId=${gmcAccountId}`;
+
+    try {
+      if (!user) return;
+      const response = await axios.get(url, {
+        withCredentials: true,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching merchant accounts:', error);
+    }
+  };
+
   const fetchReports = async (gmcAccountId: string, date, filter) => {
     const url = `${
       import.meta.env.VITE_API_URL
@@ -150,7 +165,7 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({
       return response.data;
     } catch (error: any) {
       if (error.response) {
-        toast.error('Please enter a value to filter!');
+        toast.error('Please Login Again');
         console.error(
           'API Error:',
           error.response.data?.message || 'Unknown error'
@@ -193,6 +208,7 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({
         token,
         setFilter,
         filter,
+        fetchGoogleProductCategory,
       }}
     >
       {children}
