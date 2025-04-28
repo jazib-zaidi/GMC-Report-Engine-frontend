@@ -7,4 +7,14 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['lucide-react'],
   },
+  server: {
+    proxy: {
+      // The API endpoint to proxy
+      '/api': {
+        target: 'https://gmc-reporting.duckdns.org:3000',
+        changeOrigin: true,
+        secure: false, // Use 'true' if the target is using a valid HTTPS certificate
+      },
+    },
+  },
 });
