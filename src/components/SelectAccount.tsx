@@ -3,16 +3,19 @@ import Select from './ui/Select';
 import { useAuth } from '../context/AuthContext';
 import { Loader, Loader2Icon } from 'lucide-react';
 import Loading from './loader';
+import toast from 'react-hot-toast';
+import { format } from 'date-fns';
 
 const SelectAccount = () => {
   const {
     user,
     logout,
     merchantAccounts,
-
     setMerchantSelect,
     setReportData,
     merchantSelect,
+    fetchGoogleProductCategory,
+    setSelectedDateRange,
   } = useAuth();
 
   return merchantAccounts && merchantAccounts.length > 0 ? (
@@ -27,6 +30,36 @@ const SelectAccount = () => {
               id: selectedMerchant.merchantId,
               name: selectedMerchant.name,
             });
+            let date = {
+              startDate: new Date(),
+              endDate: new Date(),
+            };
+
+            const formattedCurrentStart = format(date.startDate, 'yyyy-MM-dd');
+            const formattedCurrentEnd = format(date.endDate, 'yyyy-MM-dd');
+
+            let selectedRange = {
+              startDate: formattedCurrentStart,
+              endDate: formattedCurrentEnd,
+            };
+
+            setSelectedDateRange(selectedRange);
+
+            toast.promise(
+              fetchGoogleProductCategory(selectedMerchant.merchantId),
+              {
+                loading: (
+                  <b> Fetching Google Product Category, please wait...</b>
+                ),
+                success: <b>Google Product Category successfully loaded!</b>,
+                error: (
+                  <b>
+                    Failed to load Google Product Category. Please try
+                    refreshing the page. or Login again
+                  </b>
+                ),
+              }
+            );
             setReportData(null);
           }
         }}

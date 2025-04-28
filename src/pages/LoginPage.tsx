@@ -7,7 +7,6 @@ import { BarChart2 } from 'lucide-react';
 const LoginPage: React.FC = () => {
   const { user } = useAuth();
 
-  // If already logged in, navigate to dashboard
   if (user) {
     return <Navigate to='/dashboard' replace />;
   }

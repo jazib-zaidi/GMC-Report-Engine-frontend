@@ -61,66 +61,8 @@ const ComparisonPeriod: React.FC = () => {
     setShowPicker(false);
   };
 
-  useEffect(() => {
-    const storedRange = localStorage.getItem('selectedDateRange');
-    if (storedRange) {
-      const parsed = JSON.parse(storedRange);
-      const start = new Date(parsed.startDate);
-      const end = new Date(parsed.endDate);
-
-      setCurrentPeriod({
-        startDate: start,
-        endDate: end,
-        key: 'selection',
-      });
-      setTempRange({
-        startDate: start,
-        endDate: end,
-        key: 'selection',
-      });
-
-      const prevStart = subDays(start, 365);
-      const prevEnd = subDays(end, 365);
-
-      setPreviousPeriod({
-        startDate: prevStart,
-        endDate: prevEnd,
-        key: 'previous',
-      });
-
-      setSelectedDateRange(parsed);
-    } else {
-      // default to last 30 days
-      const currentDate = new Date();
-      const last30DaysStart = subDays(currentDate, 30);
-
-      setCurrentPeriod({
-        startDate: last30DaysStart,
-        endDate: currentDate,
-        key: 'selection',
-      });
-      setTempRange({
-        startDate: last30DaysStart,
-        endDate: currentDate,
-        key: 'selection',
-      });
-
-      const prevStart = subDays(last30DaysStart, 365);
-      const prevEnd = subDays(currentDate, 365);
-
-      setPreviousPeriod({
-        startDate: prevStart,
-        endDate: prevEnd,
-        key: 'previous',
-      });
-
-      setSelectedDateRange({
-        startDate: format(last30DaysStart, 'yyyy-MM-dd'),
-        endDate: format(currentDate, 'yyyy-MM-dd'),
-      });
-    }
-  }, []);
   const handleSearch = (data) => {
+    setReportData(null);
     setFilter(data);
   };
   return (
@@ -153,6 +95,7 @@ const ComparisonPeriod: React.FC = () => {
                 Equals to {filter?.searchValue}
                 <button
                   onClick={() => {
+                    setReportData(null);
                     setFilter({});
                   }}
                   className='text-sm hover:underline ml-2'
@@ -170,7 +113,7 @@ const ComparisonPeriod: React.FC = () => {
         />
       </div>
       {showPicker && (
-        <div className='absolute z-10 mt-2 bg-white p-4 border rounded shadow-lg'>
+        <div className='absolute z-50 mt-56 bg-white p-4 border rounded shadow-lg'>
           <DateRangePicker
             onChange={handleSelect}
             showSelectionPreview

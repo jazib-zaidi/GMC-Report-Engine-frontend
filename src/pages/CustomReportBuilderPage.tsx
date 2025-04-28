@@ -16,7 +16,7 @@ export default function CustomReportBuilder() {
 
   const summaryData = { changesData, current, previous };
   const [reportName, setReportName] = useState(
-    `${merchantSelect?.name} Google Merchant Center Report for ${selectedDateRange?.startDate} - ${selectedDateRange?.endDate}`
+    `FeedOps ${merchantSelect?.name} Google Merchant Center Report for ${selectedDateRange?.startDate} - ${selectedDateRange?.endDate}`
   );
   const authToken = () => {
     const token = localStorage.getItem('authToken');
