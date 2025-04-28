@@ -2,13 +2,10 @@
 import { io } from 'socket.io-client';
 
 // Connect to the backend
-const socket = io(
-  'wss://gmc-reporting.duckdns.org:3000/socket.io/?EIO=4&transport=websocket',
-  {
-    withCredentials: true, // Allow cookies, sessions
-    transports: ['websocket'], // Optional but recommended
-  }
-);
+const socket = io('http://gmc-reporting.duckdns.org:3000', {
+  withCredentials: true, // Allow cookies, sessions
+  transports: ['websocket'], // Optional but recommended
+});
 
 // Handle basic connection events
 socket.on('connect', () => {
