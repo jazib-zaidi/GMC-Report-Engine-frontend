@@ -14,14 +14,14 @@ import ExcelImportScreen from '../components/focusKeyword/uploadFile';
 import InsightsTable from '../components/insights/InsightsTable';
 import ProductTable from '../components/focusKeyword/DetailTable';
 import AIOptimization from '../components/focusKeyword/AiOptimization';
-import {
-  connect,
-  googleSheet,
-  keywordGenerated,
-  onGenerationComplete,
-  promptTokens,
-  startGeneration,
-} from '../socket';
+// import {
+//   connect,
+//   googleSheet,
+//   keywordGenerated,
+//   onGenerationComplete,
+//   promptTokens,
+//   startGeneration,
+// } from '../socket';
 import TokenDetailsModal from '../components/focusKeyword/TokenDetailsModal';
 
 interface OptimizationData {
@@ -51,45 +51,40 @@ const AIOptimizationScreen = () => {
     window.open(sheetUrl, '_blank');
   };
   useEffect(() => {
-    onGenerationComplete((data) => {
-      console.log(data);
-    });
-    googleSheet((data) => {
-      setSheetUrl(data.spreadsheetUrl);
-    });
-
-    promptTokens((data) => {
-      console.log(data);
-      setDetails(data);
-    });
-
-    keywordGenerated((data: OptimizationData) => {
-      console.log(data);
-
-      setReceivedRows((prevRows) => {
-        // Check if the Item ID already exists in prevRows
-        const isDuplicate = prevRows.some(
-          (row) => row['Item ID'] === data['Item ID']
-        );
-        if (isDuplicate) {
-          return prevRows; // If duplicate, don't add the new data
-        }
-
-        // Otherwise, add the new data to the array
-        return [...prevRows, data];
-      });
-
-      setOptimizationsStarted(true);
-    });
+    // onGenerationComplete((data) => {
+    //   console.log(data);
+    // });
+    // googleSheet((data) => {
+    //   setSheetUrl(data.spreadsheetUrl);
+    // });
+    // promptTokens((data) => {
+    //   console.log(data);
+    //   setDetails(data);
+    // });
+    // keywordGenerated((data: OptimizationData) => {
+    //   console.log(data);
+    //   setReceivedRows((prevRows) => {
+    //     // Check if the Item ID already exists in prevRows
+    //     const isDuplicate = prevRows.some(
+    //       (row) => row['Item ID'] === data['Item ID']
+    //     );
+    //     if (isDuplicate) {
+    //       return prevRows; // If duplicate, don't add the new data
+    //     }
+    //     // Otherwise, add the new data to the array
+    //     return [...prevRows, data];
+    //   });
+    //   setOptimizationsStarted(true);
+    // });
   }, []);
 
   const handleGenerate = () => {
-    connect();
+    // connect();
     setLoading(true);
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      startGeneration({ data: uploadedData?.data, token });
-    }
+    // const token = localStorage.getItem('authToken');
+    // if (token) {
+    //   startGeneration({ data: uploadedData?.data, token });
+    // }
   };
   // return <AIOptimization />;
   return uploadedData?.message !== 'File Uploaded' ? (
