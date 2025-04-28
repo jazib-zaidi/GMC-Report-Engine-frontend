@@ -82,10 +82,15 @@ export default function ProductTable({ product, isAi = false }) {
         {currentProducts.map((product) => (
           <div key={product['Item ID']} className='border-b border-gray-200'>
             <div className='grid grid-cols-12 p-3 items-center hover:bg-gray-50'>
-              <div className='col-span-1 text-gray-600'>
-                {product['Item ID']}
+              <div className='relative group ml-2'>
+                <div className='col-span-1 text-gray-600 truncate mr-4'>
+                  {product['Item ID']}
+                </div>
+                <div className='absolute bottom-full left-[150%] transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none bg-gray-800 text-white text-xs rounded py-1 px-2  text-center'>
+                  {product['Item ID']}
+                </div>
               </div>
-              <div className='col-span-6 text-sm'>
+              <div className='col-span-6 text-sm truncate w-[90%]'>
                 {highlightKeywords(
                   product['Title'],
                   product['Focus Keyword'],
