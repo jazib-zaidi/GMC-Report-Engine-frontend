@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { BookOpen } from 'lucide-react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import toast from 'react-hot-toast';
 
 export default function CustomReportBuilder() {
   const [loading, setLoading] = useState(false);
@@ -17,12 +18,19 @@ export default function CustomReportBuilder() {
   const [reportName, setReportName] = useState(
     `${merchantSelect?.name} Google Merchant Center Report for ${selectedDateRange?.startDate} - ${selectedDateRange?.endDate}`
   );
+  const authToken = () => {
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      return `?token=${token}`;
+    }
+    toast.error('No Token found please login again');
+    return '';
+  };
 
   const handleExport = async () => {
     try {
       setLoading(true);
 
-      // Simulate progress updates
       const progressInterval = setInterval(() => {
         setProgress((prev) => {
           if (prev >= 95) {
@@ -34,7 +42,7 @@ export default function CustomReportBuilder() {
       }, 300);
 
       const response = await axios.post(
-        'https://gmc-report-engine-backend-production.up.railway.app/api/google-sheet',
+        `${import.meta.env.VITE_API_URL}/api/google-sheet${authToken()}`,
         {
           reportName,
           selectedDateRange,
@@ -51,7 +59,6 @@ export default function CustomReportBuilder() {
 
       window.open(response.data.url, '_blank');
 
-      // Reset progress after completion
       setTimeout(() => {
         setLoading(false);
         setProgress(0);

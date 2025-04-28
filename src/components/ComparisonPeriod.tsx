@@ -5,9 +5,10 @@ import { CalendarRange } from 'lucide-react';
 import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
 import { useAuth } from '../context/AuthContext';
+import AdvanceFilter from './insights/AdvanceFilter';
 
 const ComparisonPeriod: React.FC = () => {
-  const { setSelectedDateRange, setReportData } = useAuth();
+  const { setSelectedDateRange, setReportData, setFilter, filter } = useAuth();
   const [showPicker, setShowPicker] = useState(false);
 
   const [currentPeriod, setCurrentPeriod] = useState({
@@ -119,9 +120,11 @@ const ComparisonPeriod: React.FC = () => {
       });
     }
   }, []);
-
+  const handleSearch = (data) => {
+    setFilter(data);
+  };
   return (
-    <div className='relative inline-block text-sm text-gray-600'>
+    <div className='relative inline-block text-sm text-gray-600 w-full flex items-center justify-between'>
       <div className='inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-200 rounded-lg shadow-sm '>
         <CalendarRange size={16} className='text-gray-400' />
         <span>Comparing periods:</span>
@@ -138,7 +141,34 @@ const ComparisonPeriod: React.FC = () => {
           {format(previousPeriod.endDate, 'dd MMM yyyy')}
         </span>
       </div>
-
+      <div className='flex items-center justify-center'>
+        {filter?.searchValue && (
+          <>
+            <div className='flex items-center space-x-2 bg-white border border-gray-400 rounded-full mr-3 px-2'>
+              <span className='text-sm   space-x-2  px-2 py-2 rounded-md'>
+                Filtered by{' '}
+                {filter?.selectedAttribute == 'offerId'
+                  ? 'Product ID'
+                  : filter?.selectedAttribute}{' '}
+                Equals to {filter?.searchValue}
+                <button
+                  onClick={() => {
+                    setFilter({});
+                  }}
+                  className='text-sm hover:underline ml-2'
+                >
+                  X
+                </button>
+              </span>
+            </div>
+          </>
+        )}
+        <AdvanceFilter
+          filterValue={(data) => {
+            handleSearch(data);
+          }}
+        />
+      </div>
       {showPicker && (
         <div className='absolute z-10 mt-2 bg-white p-4 border rounded shadow-lg'>
           <DateRangePicker

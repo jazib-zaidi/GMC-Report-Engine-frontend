@@ -6,12 +6,13 @@ import {
   Route,
   Navigate,
 } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import Layout from './components/layout/Layout';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import InsightsPage from './pages/InsightsPage';
 import CustomReportBuilder from './pages/CustomReportBuilderPage';
+import FocusKeywordAI from './pages/FocusKeywordAI';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
             <Route path='dashboard' element={<DashboardPage />} />
             <Route path='reports' element={<CustomReportBuilder />} />
             <Route path='insights/:insightType' element={<InsightsPage />} />
+            <Route path='focus-keyword-ai' element={<FocusKeywordAI />} />
           </Route>
 
           {/* <Route path="*" element={<Navigate to="/dashboard" replace />} /> */}

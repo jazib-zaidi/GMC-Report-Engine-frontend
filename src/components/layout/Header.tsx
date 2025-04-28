@@ -5,6 +5,7 @@ import Button from '../ui/Button';
 import Select from '../ui/Select';
 import SelectAccount from '../SelectAccount';
 import { is } from 'date-fns/locale';
+import toast from 'react-hot-toast';
 
 interface HeaderProps {
   toggleSidebar: () => void;
@@ -25,6 +26,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, sidebarOpen }) => {
     setMerchantSelect,
     selectedDateRange,
     merchantSelect,
+    filter,
   } = useAuth();
 
   useEffect(() => {
@@ -33,9 +35,16 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, sidebarOpen }) => {
 
   useEffect(() => {
     if (merchantSelect?.id && selectedDateRange) {
-      fetchReports(merchantSelect.id, selectedDateRange);
+      toast.promise(
+        fetchReports(merchantSelect.id, selectedDateRange, filter),
+        {
+          loading: <b> Fetching reports, please wait...</b>,
+          success: <b>Reports successfully loaded!</b>,
+          error: <b>Failed to load reports. Please try refreshing the page.</b>,
+        }
+      );
     }
-  }, [merchantSelect, selectedDateRange]);
+  }, [merchantSelect, selectedDateRange, filter]);
 
   return (
     <header className='sticky top-0 z-[8] bg-white border-b border-gray-200 shadow-sm'>

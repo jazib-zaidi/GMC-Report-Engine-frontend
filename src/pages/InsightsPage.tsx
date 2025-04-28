@@ -6,7 +6,7 @@ import InsightsTable, {
   PercentageCell,
 } from '../components/insights/InsightsTable';
 import { TabsContent } from '../components/ui/Tabs';
-import ComparisonPeriod from '../components/ComparisonPeriod';
+// import ComparisonPeriod from '../components/ComparisonPeriod';
 import { TabRoute } from '../types';
 import {
   productInsights,
@@ -324,7 +324,7 @@ const InsightsPage: React.FC = () => {
         <h1 className='text-2xl font-bold text-gray-900 mb-3'>
           Compares performance of items in stock during the same period.
         </h1>
-        <ComparisonPeriod />
+        {/* <ComparisonPeriod /> */}
       </div>
       {!reportData ? (
         <TableLoadingSkeleton />
@@ -338,7 +338,6 @@ const InsightsPage: React.FC = () => {
             <TabsContent value='product' className='p-4'>
               <div className='flex justify-between items-center mb-4'>
                 <div className='flex items-center space-x-2'>
-                  <AdvanceFilter filterValue={filterValue} />
                   {appliedFilters?.searchValue && (
                     <>
                       <div className='flex items-center space-x-2 '>

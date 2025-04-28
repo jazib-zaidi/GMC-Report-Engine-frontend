@@ -8,6 +8,7 @@ import {
 } from '../utils/authUtils';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 type MerchantSelect = {
   id: string;
   name: string;
@@ -69,10 +70,11 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({
   const [merchantSelect, setMerchantSelect] = useState<MerchantSelect | null>(
     null
   );
+  const [filter, setFilter] = useState({});
   const [exportData, setExportData] = useState<
     Record<string, { headers: string[]; data: any[] }>
   >({});
-
+  const [token, setToken] = useState('');
   useEffect(() => {
     // Check if user is already logged in
     const savedUser = getUser();
@@ -81,6 +83,15 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({
     }
     setIsLoading(false);
   }, []);
+
+  const authToken = () => {
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      return `?token=${token}`;
+    }
+    toast.error('No Token found please login again');
+    return '';
+  };
 
   const login = async () => {
     setIsLoading(true);
@@ -98,15 +109,16 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({
   };
 
   const fetchMerchantAccounts = async () => {
+    const url = `${
+      import.meta.env.VITE_API_URL
+    }/api/merchant_account_list${authToken()}`;
+
     try {
       if (!user) return;
 
-      const response = await axios.get(
-        'https://gmc-report-engine-backend-production.up.railway.app/api/merchant_account_list',
-        {
-          withCredentials: true,
-        }
-      );
+      const response = await axios.get(url, {
+        withCredentials: true,
+      });
 
       const merchantAccounts = response.data.accounts;
 
@@ -116,13 +128,17 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({
     }
   };
 
-  const fetchReports = async (gmcAccountId: string, date) => {
+  const fetchReports = async (gmcAccountId: string, date, filter) => {
+    const url = `${
+      import.meta.env.VITE_API_URL
+    }/api/fetch_reports${authToken()}`;
     try {
       const response = await axios.post(
-        'https://gmc-report-engine-backend-production.up.railway.app/api/fetch_reports',
+        url,
         {
           gmcAccountId,
           date,
+          filter,
         },
         {
           withCredentials: true,
@@ -134,7 +150,7 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({
       return response.data;
     } catch (error: any) {
       if (error.response) {
-        // Server responded with a status other than 2xx
+        toast.error('Please enter a value to filter!');
         console.error(
           'API Error:',
           error.response.data?.message || 'Unknown error'
@@ -173,6 +189,10 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({
         selectedDateRange,
         setExportData,
         exportData,
+        setToken,
+        token,
+        setFilter,
+        filter,
       }}
     >
       {children}

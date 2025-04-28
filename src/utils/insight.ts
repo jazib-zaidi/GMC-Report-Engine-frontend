@@ -120,3 +120,62 @@ export const calculateChanges = (
     };
   });
 };
+
+const columns = [
+  {
+    header: 'Item ID',
+    accessorKey: 'Item ID',
+  },
+  {
+    header: 'Title',
+    accessorKey: 'Title',
+  },
+  {
+    header: 'Description',
+    accessorKey: 'Description',
+  },
+  {
+    header: 'Focus Keyword',
+    accessorKey: 'Focus Keyword',
+  },
+  {
+    header: 'Product Type (1st Level)',
+    accessorKey: 'Product Type (1st Level)',
+  },
+  {
+    header: 'Product Type (2nd Level)',
+    accessorKey: 'Product Type (2nd Level)',
+  },
+  {
+    header: 'Product Type (3rd Level)',
+    accessorKey: 'Product Type (3rd Level)',
+  },
+  {
+    header: 'Product Type (4th Level)',
+    accessorKey: 'Product Type (4th Level)',
+  },
+  {
+    header: 'Product Type (5th Level)',
+    accessorKey: 'Product Type (5th Level)',
+  },
+  {
+    header: 'Google Product Category 1',
+    accessorKey: 'Google Product Category 1',
+  },
+  {
+    header: 'Google Product Category 2',
+    accessorKey: 'Google Product Category 2',
+  },
+  {
+    header: 'Google Product Category 3',
+    accessorKey: 'Google Product Category 3',
+  },
+  {
+    header: 'Google Product Category 4',
+    accessorKey: 'Google Product Category 4',
+  },
+  {
+    header: 'Google Product Category 5',
+    accessorKey: 'Google Product Category 5',
+  },
+];

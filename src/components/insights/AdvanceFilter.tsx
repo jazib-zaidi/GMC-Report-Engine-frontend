@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
+import { ChevronDown } from 'lucide-react';
 
 const attributes = [
   {
@@ -100,13 +101,12 @@ const AdvanceFilter = ({ filterValue }) => {
         }}
         className='border-2 bg-white border-gray-300 text-black py-2 rounded-md transition duration-200 w-[80px]'
       >
-        Filter
+        Filter <ChevronDown size={16} className='inline' />
       </button>
-      <Toaster position='bottom-center' reverseOrder={false} />
 
       {showDropdown && !selectedAttribute && (
-        <div className='absolute left-0 mt-2 w-64 bg-white border border-gray-300 rounded-md shadow-lg z-10'>
-          <div className='max-h-60 overflow-y-auto'>
+        <div className='absolute right-0 mt-2 w-64 bg-white border border-gray-300 rounded-md shadow-lg z-10'>
+          <div className='max-h-72 overflow-y-auto'>
             {attributes.map((attr, index) => (
               <div
                 key={index}
@@ -123,7 +123,7 @@ const AdvanceFilter = ({ filterValue }) => {
       )}
 
       {selectedAttribute && (
-        <div className='absolute left-0 mt-2 w-64 bg-white border border-gray-300 rounded-md shadow-lg z-20 p-4'>
+        <div className='absolute right-0 mt-2 w-64 bg-white border border-gray-300 rounded-md shadow-lg z-20 p-4'>
           <div className='mb-2 font-medium'>{selectedAttribute}</div>
           <div className='text-sm text-gray-500 mb-2'>
             Enter value to filter:
@@ -136,18 +136,19 @@ const AdvanceFilter = ({ filterValue }) => {
             placeholder='Equals to...'
             className='w-full border border-gray-300 rounded-md px-3 py-1 mb-3'
           />
-          <div className='flex justify-between'>
-            <button
-              onClick={handleCancel}
-              className='px-3 py-1 bg-gray-200 text-black rounded-md hover:bg-gray-300'
-            >
-              Cancel
-            </button>
+          <div className='flex gap-2 '>
             <button
               onClick={handleApply}
               className='px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700'
             >
               Apply
+            </button>
+
+            <button
+              onClick={handleCancel}
+              className='px-3 py-1 bg-gray-200 text-black rounded-md hover:bg-gray-300'
+            >
+              Cancel
             </button>
           </div>
         </div>

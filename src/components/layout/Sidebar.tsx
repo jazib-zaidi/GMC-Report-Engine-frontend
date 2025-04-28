@@ -135,9 +135,9 @@ const sidebarItems: SidebarItem[] = [
   },
   {
     id: 'ai-insights',
-    label: 'AI Insights (Coming Soon)',
+    label: 'Keyword Optimizer',
     icon: BrainCircuit,
-    path: '/',
+    path: '/focus-keyword-ai',
   },
 ];
 

@@ -3,9 +3,8 @@ import axios from 'axios';
 
 // Simulate Google OAuth authentication
 export const authenticateWithGoogle = async (): Promise<User> => {
-  const response = await axios.get(
-    'https://gmc-report-engine-backend-production.up.railway.app'
-  );
+  const url = `${import.meta.env.VITE_API_URL}`;
+  const response = await axios.get(url);
 
   window.open(response.data.authUrl);
   const user: User = {
