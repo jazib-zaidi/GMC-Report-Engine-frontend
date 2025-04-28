@@ -2,7 +2,7 @@
 import { io } from 'socket.io-client';
 
 // Connect to the backend
-const socket = io(`${import.meta.env.VITE_API_URL}`, {
+const socket = io('wss://gmc-reporting.duckdns.org:3000', {
   withCredentials: true, // Allow cookies, sessions
   transports: ['websocket'], // Optional but recommended
 });
