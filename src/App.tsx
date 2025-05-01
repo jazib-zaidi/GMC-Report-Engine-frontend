@@ -23,7 +23,7 @@ function App() {
           <Route path='/' element={<Layout />}>
             <Route index element={<Navigate to='/dashboard' replace />} />
             <Route path='dashboard' element={<DashboardPage />} />
-            <Route path='reports' element={<CustomReportBuilder />} />
+            {/* <Route path='reports' element={<CustomReportBuilder />} /> */}
             <Route path='insights/:insightType' element={<InsightsPage />} />
             <Route path='focus-keyword-ai' element={<FocusKeywordAI />} />
           </Route>

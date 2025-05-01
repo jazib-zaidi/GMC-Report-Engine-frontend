@@ -1,20 +1,21 @@
 import { useState } from 'react';
 import { BookOpen } from 'lucide-react';
 import axios from 'axios';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
 
 export default function CustomReportBuilder() {
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
 
-  const { exportData, selectedDateRange, reportData, merchantSelect } =
-    useAuth();
-  const changesData = reportData?.change;
-  const current = reportData?.current?.summary;
-  const previous = reportData?.previous?.summary;
+  const {
+    exportData,
+    selectedDateRange,
+    reportData,
+    merchantSelect,
+    previousDateRange,
+  } = useAuth();
 
-  const summaryData = { changesData, current, previous };
   const [reportName, setReportName] = useState(
     `FeedOps ${merchantSelect?.name} Google Merchant Center Report for ${selectedDateRange?.startDate} - ${selectedDateRange?.endDate}`
   );
@@ -46,8 +47,8 @@ export default function CustomReportBuilder() {
         {
           reportName,
           selectedDateRange,
-          exportData,
-          summaryData,
+          previousDateRange,
+          reportData,
         },
         {
           withCredentials: true,
@@ -72,12 +73,7 @@ export default function CustomReportBuilder() {
 
   return (
     <div className=' '>
-      <div className='max-w-5xl mx-auto'>
-        <h1 className='text-3xl font-semibold text-gray-800 mb-6'>
-          Create custom report
-        </h1>
-
-        {/* Report Name Section */}
+      <div className=' mx-auto'>
         <div className='mb-6'>
           <label
             htmlFor='reportName'
@@ -94,9 +90,7 @@ export default function CustomReportBuilder() {
             onChange={(e) => setReportName(e.target.value)}
           />
         </div>
-
         {/* Sidebar Option */}
-
         {/* Report Builder Section */}
         <div className='mb-8'>
           <h2 className='text-xl font-semibold text-gray-800 mb-4'>

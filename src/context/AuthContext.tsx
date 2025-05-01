@@ -66,6 +66,7 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({
   const [selectedDateRange, setSelectedDateRange] = useState<string | null>(
     null
   );
+  const [previousDateRange, setPreviousDateRange] = useState(null);
   const [merchantSelect, setMerchantSelect] = useState<MerchantSelect | null>(
     null
   );
@@ -75,7 +76,6 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({
   >({});
   const [token, setToken] = useState('');
   useEffect(() => {
-    // Check if user is already logged in
     const savedUser = getUser();
     if (savedUser) {
       setUser(savedUser);
@@ -143,7 +143,12 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({
     }
   };
 
-  const fetchReports = async (gmcAccountId: string, date, filter) => {
+  const fetchReports = async (
+    gmcAccountId: string,
+    date,
+    filter,
+    previousDateRange
+  ) => {
     const url = `${
       import.meta.env.VITE_API_URL
     }/api/fetch_reports${authToken()}`;
@@ -154,6 +159,7 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({
           gmcAccountId,
           date,
           filter,
+          previousDateRange,
         },
         {
           withCredentials: true,
@@ -209,6 +215,8 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({
         setFilter,
         filter,
         fetchGoogleProductCategory,
+        setPreviousDateRange,
+        previousDateRange,
       }}
     >
       {children}

@@ -61,9 +61,10 @@ const tabRoutes: TabRoute[] = [
 const InsightsPage: React.FC = () => {
   const [insighttype, setInsightType] = React.useState('product');
   const { insightType = 'product' } = useParams<{ insightType: string }>();
-  const { reportData, merchantSelect, setExportData, exportData } = useAuth();
-  const [appliedFilters, setAppliedFilters] = useState({});
-  const [filteredData, setFilteredData] = useState([]);
+  const { reportData, setExportData, exportData } = useAuth();
+  useEffect(() => {
+    setInsightType(insightType);
+  }, [insightType]);
   const [productTableHeaders, setProductTableHeaders] = useState([
     { header: 'Item ID', accessorKey: 'offerId' },
     { header: 'Title', accessorKey: 'title' },
@@ -76,8 +77,9 @@ const InsightsPage: React.FC = () => {
       header: 'Previous Period Clicks',
       accessorKey: 'previousClicks',
     },
-    { header: 'Clicks Change (%)', accessorKey: 'clickChangePercent' },
-    { header: 'Clicks Change (Number)', accessorKey: 'clickChangeNumber' },
+
+    { header: 'Clicks Change (%)', accessorKey: 'clicksChangePct' },
+    { header: 'Clicks Change (Number)', accessorKey: 'clicksChangeNumber' },
     {
       header: 'Current Period Impressions',
       accessorKey: 'currentImpressions',
@@ -89,122 +91,20 @@ const InsightsPage: React.FC = () => {
 
     {
       header: 'Impressions Change (%)',
-      accessorKey: 'impressionChangePercent',
+      accessorKey: 'impressionsChangePct',
     },
     {
       header: 'Impressions Change (Number)',
-      accessorKey: 'impressionChangeNumber',
+      accessorKey: 'impressionsChangeNumber',
     },
   ]);
+
   const sortDataBasedOnClickChanges = (data) => {
     return data.sort((a, b) => b.clickChangeNumber - a.clickChangeNumber);
   };
 
-  useEffect(() => {
-    setInsightType(insightType);
-  }, [insightType]);
-
-  useEffect(() => {
-    const newExportData: typeof exportData = {};
-
-    // PRODUCT
-    newExportData['product'] = {
-      headers: productTableHeaders.map((col) => col.header),
-      data: sortDataBasedOnClickChanges(mergedData),
-    };
-
-    // BRAND
-    newExportData['brand'] = {
-      headers: brandColumns.map((col) => col.header),
-      data: sortDataBasedOnClickChanges(mergedBrandData),
-    };
-
-    // PRODUCT TYPES
-    Array.from({ length: 5 }).forEach((_, i) => {
-      const key = `type${i + 1}`;
-      const type = `L${i + 1}`;
-      newExportData[key] = {
-        headers: productTypeColumns(type).map((col) => col.header),
-        data: sortDataBasedOnClickChanges(
-          getSegmentDataByType(`productTypeL${i + 1}`)
-        ),
-      };
-    });
-
-    // GOOGLE CATEGORIES
-    Array.from({ length: 5 }).forEach((_, i) => {
-      const key = `categoryL${i + 1}`;
-      const type = `L${i + 1}`;
-      newExportData[key] = {
-        headers: googlecategory(type).map((col) => col.header),
-        data: sortDataBasedOnClickChanges(
-          getSegmentDataByType(`categoryL${i + 1}`)
-        ),
-      };
-    });
-
-    setExportData(newExportData);
-  }, [reportData]);
-
-  const previousData = reportData?.previous?.data || [];
-  const currentData = reportData?.current?.data || [];
-
-  const aggregatedCurrentMap = aggregateData(currentData, 'offerId');
-  const aggregatedPreviousMap = aggregateData(previousData, 'offerId');
-
-  const aggregatedCurrentData = Object.values(aggregatedCurrentMap);
-  const aggregatedPreviousData = Object.values(aggregatedPreviousMap);
-
-  const mergedData = calculateChanges(
-    aggregatedCurrentData,
-    aggregatedPreviousData,
-    'offerId'
-  );
-
-  useEffect(() => {
-    setFilteredData(mergedData);
-  }, [reportData]);
-
-  const previousBrandData = reportData?.previous?.brand || [];
-  const currentBrandData = reportData?.current?.brand || [];
-
-  const aggregatedBrandCurrentMap = aggregateData(currentBrandData, 'brand');
-  const aggregatedBrandPreviousMap = aggregateData(previousBrandData, 'brand');
-
-  const aggregatedBrandCurrentData = Object.values(aggregatedBrandCurrentMap);
-  const aggregatedBrandPreviousData = Object.values(aggregatedBrandPreviousMap);
-
-  const mergedBrandData = calculateChanges(
-    aggregatedBrandCurrentData,
-    aggregatedBrandPreviousData,
-    'brand'
-  );
-
-  const getSegmentDataByType = (type) => {
-    const previousData = reportData?.previous?.[type] || [];
-    const currentData = reportData?.current?.[type] || [];
-
-    const aggregatedCurrentMap = aggregateData(currentData, type);
-    const aggregatedPreviousMap = aggregateData(previousData, type);
-
-    const aggregatedCurrentData = Object.values(aggregatedCurrentMap);
-    const aggregatedPreviousData = Object.values(aggregatedPreviousMap);
-
-    const mergedData = calculateChanges(
-      aggregatedCurrentData,
-      aggregatedPreviousData,
-      type
-    );
-
-    return mergedData;
-  };
-
-  const productTableHeaer = (column) => {
-    setProductTableHeaders(column);
-  };
-
   const brandColumns = [
-    { header: 'Brand', accessorKey: 'brand' },
+    { header: 'Brand', accessorKey: 'segment' },
     {
       header: 'Current Period Clicks',
       accessorKey: 'currentClicks',
@@ -213,8 +113,8 @@ const InsightsPage: React.FC = () => {
       header: 'Previous Period Clicks',
       accessorKey: 'previousClicks',
     },
-    { header: 'Clicks Change (%)', accessorKey: 'clickChangePercent' },
-    { header: 'Clicks Change (Number)', accessorKey: 'clickChangeNumber' },
+    { header: 'Clicks Change (%)', accessorKey: 'clicksChangePct' },
+    { header: 'Clicks Change (Number)', accessorKey: 'clicksChangeNumber' },
     {
       header: 'Current Period Impressions',
       accessorKey: 'currentImpressions',
@@ -225,11 +125,11 @@ const InsightsPage: React.FC = () => {
     },
     {
       header: 'Impressions Change (%)',
-      accessorKey: 'impressionChangePercent',
+      accessorKey: 'impressionsChangePct',
     },
     {
       header: 'Impressions Change (Number)',
-      accessorKey: 'impressionChangeNumber',
+      accessorKey: 'impressionsChangeNumber',
     },
   ];
 
@@ -237,7 +137,7 @@ const InsightsPage: React.FC = () => {
     return [
       {
         header: `Product Type Level ${type?.split('')[1]}`,
-        accessorKey: `productType${type}`,
+        accessorKey: `segment`,
       },
       {
         header: 'Current Period Clicks',
@@ -247,8 +147,8 @@ const InsightsPage: React.FC = () => {
         header: 'Previous Period Clicks',
         accessorKey: 'previousClicks',
       },
-      { header: 'Clicks Change (%)', accessorKey: 'clickChangePercent' },
-      { header: 'Clicks Change (Number)', accessorKey: 'clickChangeNumber' },
+      { header: 'Clicks Change (%)', accessorKey: 'clicksChangePct' },
+      { header: 'Clicks Change (Number)', accessorKey: 'clicksChangeNumber' },
       {
         header: 'Current Period Impressions',
         accessorKey: 'currentImpressions',
@@ -259,11 +159,11 @@ const InsightsPage: React.FC = () => {
       },
       {
         header: 'Impressions Change (%)',
-        accessorKey: 'impressionChangePercent',
+        accessorKey: 'impressionsChangePct',
       },
       {
         header: 'Impressions Change (Number)',
-        accessorKey: 'impressionChangeNumber',
+        accessorKey: 'impressionsChangeNumber',
       },
     ];
   };
@@ -271,7 +171,7 @@ const InsightsPage: React.FC = () => {
     return [
       {
         header: `Google category Level ${type?.split('')[1]}`,
-        accessorKey: `category${type}`,
+        accessorKey: `segment`,
       },
       {
         header: 'Current Period Clicks',
@@ -281,8 +181,8 @@ const InsightsPage: React.FC = () => {
         header: 'Previous Period Clicks',
         accessorKey: 'previousClicks',
       },
-      { header: 'Clicks Change (%)', accessorKey: 'clickChangePercent' },
-      { header: 'Clicks Change (Number)', accessorKey: 'clickChangeNumber' },
+      { header: 'Clicks Change (%)', accessorKey: 'clicksChangePct' },
+      { header: 'Clicks Change (Number)', accessorKey: 'clicksChangeNumber' },
       {
         header: 'Current Period Impressions',
         accessorKey: 'currentImpressions',
@@ -293,30 +193,19 @@ const InsightsPage: React.FC = () => {
       },
       {
         header: 'Impressions Change (%)',
-        accessorKey: 'impressionChangePercent',
+        accessorKey: 'impressionsChangePct',
       },
 
       {
         header: 'Impressions Change (Number)',
-        accessorKey: 'impressionChangeNumber',
+        accessorKey: 'impressionsChangeNumber',
       },
     ];
   };
 
-  const filterValue = (value) => {
-    setAppliedFilters(value);
-    const filteredData = mergedData.filter((item) => {
-      const itemValue = item[value.selectedAttribute];
-
-      if (itemValue.toLowerCase() === value.searchValue.toLowerCase()) {
-        return item;
-      }
-    });
-
-    setFilteredData(filteredData);
+  const getSegmentDataByType = (attribute) => {
+    return reportData.allProductDataWithImpressions[attribute];
   };
-
-  const sortedFilteredData = sortDataBasedOnClickChanges(filteredData);
 
   return (
     <div className='space-y-6 animate-fade-in'>
@@ -324,7 +213,6 @@ const InsightsPage: React.FC = () => {
         <h1 className='text-2xl font-bold text-gray-900 mb-3'>
           Compares performance of items in stock during the same period.
         </h1>
-        {/* <ComparisonPeriod /> */}
       </div>
       {!reportData ? (
         <TableLoadingSkeleton />
@@ -336,55 +224,18 @@ const InsightsPage: React.FC = () => {
             key={insighttype}
           >
             <TabsContent value='product' className='p-4'>
-              <div className='flex justify-between items-center mb-4'>
-                <div className='flex items-center space-x-2'>
-                  {appliedFilters?.searchValue && (
-                    <>
-                      <div className='flex items-center space-x-2 '>
-                        <span className='text-sm   space-x-2 bg-slate-100 px-2 py-2 rounded-md'>
-                          Filtered by{' '}
-                          {appliedFilters?.selectedAttribute == 'offerId'
-                            ? 'Product ID'
-                            : appliedFilters?.selectedAttribute}{' '}
-                          Equals to {appliedFilters?.searchValue}
-                          <button
-                            onClick={() => {
-                              setAppliedFilters({});
-                              setFilteredData(mergedData);
-                            }}
-                            className='text-sm hover:underline ml-2'
-                          >
-                            X
-                          </button>
-                        </span>
-                      </div>
-                    </>
-                  )}
-                </div>
-                <AdvancedColumnSelector productTableHeaer={productTableHeaer} />
-              </div>
-              {filteredData && filteredData.length === 0 ? (
-                <div className='d-flex justify-content-center align-items-center text-gray-500'>
-                  <img
-                    className='m-auto w-[300px] h-[300px]'
-                    src='/7486744.png'
-                    alt='Centered Image'
-                  />
-                  <h4 className='text-3xl font-bold text-gray-500 text-center'>
-                    No Product Found
-                  </h4>
-                </div>
-              ) : (
-                <InsightsTable
-                  data={sortDataBasedOnClickChanges(filteredData)}
-                  columns={productTableHeaders}
-                />
-              )}
+              <InsightsTable
+                data={
+                  reportData.allProductDataWithImpressions
+                    .allCohortAnalysisDataWithImpressions
+                }
+                columns={productTableHeaders}
+              />
             </TabsContent>
 
             <TabsContent value='brand' className='p-4'>
               <InsightsTable
-                data={sortDataBasedOnClickChanges(mergedBrandData)}
+                data={reportData.allProductDataWithImpressions.brandCohort}
                 columns={brandColumns}
               />
             </TabsContent>
@@ -392,9 +243,7 @@ const InsightsPage: React.FC = () => {
               return (
                 <TabsContent value={`type${i + 1}`} className='p-4'>
                   <InsightsTable
-                    data={sortDataBasedOnClickChanges(
-                      getSegmentDataByType(`productTypeL${i + 1}`)
-                    )}
+                    data={getSegmentDataByType(`productTypeL${i + 1}Cohort`)}
                     columns={productTypeColumns(`L${i + 1}`)}
                   />
                 </TabsContent>
@@ -404,9 +253,7 @@ const InsightsPage: React.FC = () => {
               return (
                 <TabsContent value={`categoryL${i + 1}`} className='p-4'>
                   <InsightsTable
-                    data={sortDataBasedOnClickChanges(
-                      getSegmentDataByType(`categoryL${i + 1}`)
-                    )}
+                    data={getSegmentDataByType(`categoryL${i + 1}Cohort`)}
                     columns={googlecategory(`L${i + 1}`)}
                   />
                 </TabsContent>

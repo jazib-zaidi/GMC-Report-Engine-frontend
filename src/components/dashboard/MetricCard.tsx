@@ -1,38 +1,12 @@
 import React from 'react';
 import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/Card';
-import { MetricData } from '../../types';
 import { useAuth } from '../../context/AuthContext';
 import { formatDate, getLastYearDateRange } from '../../utils/lastYearDate';
 
-type ReportSummary = {
-  impressions: string;
-  clicks: string;
-};
-
-type ChangeSummary = {
-  change: string;
-  percent: string;
-};
-
-type ReportData = {
-  current: {
-    summary: ReportSummary;
-    data: any[];
-  };
-  previous: {
-    summary: ReportSummary;
-    data: any[];
-  };
-  change: {
-    impressions: ChangeSummary;
-    clicks: ChangeSummary;
-  };
-};
-
 interface MetricCardProps {
   title: string;
-  data: ReportData;
+  data: any;
   prefix?: string;
   suffix?: string;
   icon?: React.ReactNode;
@@ -45,15 +19,23 @@ const MetricCard: React.FC<MetricCardProps> = ({
   suffix = '',
   icon,
 }) => {
-  const rawChange = data?.change?.impressions?.change ?? '0';
-  const cleanedChange = rawChange.replace(/,/g, '');
-  const numericChange = Number(cleanedChange);
-  const isPositive = numericChange >= 0;
-  const { selectedDateRange } = useAuth();
-  const percentage = data?.change?.impressions?.percent;
+  const { selectedDateRange, previousDateRange } = useAuth();
 
-  const current = data?.current?.summary;
-  const previous = data?.previous?.summary;
+  const current =
+    data?.allProductDataWithImpressions?.totalCurrentMetricsWithImpressions;
+  const previous =
+    data?.allProductDataWithImpressions?.totalPreviousMetricsWithImpressions;
+
+  const currentImpressions = Number(current?.impressions ?? 0);
+  const previousImpressions = Number(previous?.impressions ?? 0);
+
+  const change = currentImpressions - previousImpressions;
+  const percentage =
+    previousImpressions > 0
+      ? ((change / previousImpressions) * 100).toFixed(2)
+      : '0.00';
+
+  const isPositive = change >= 0;
 
   return (
     <Card className='transition-all duration-200 hover:shadow-md'>
@@ -62,8 +44,8 @@ const MetricCard: React.FC<MetricCardProps> = ({
           <div className='flex items-center mb-2'>
             {title}
             <div
-              className={` font-medium ml-3 ${
-                isPositive ? 'text-green-500' : 'text-red-400'
+              className={`font-medium ml-3 ${
+                isPositive ? 'text-green-500' : 'text-red-500'
               }`}
             >
               <span className='inline-flex items-center'>
@@ -72,30 +54,34 @@ const MetricCard: React.FC<MetricCardProps> = ({
                 ) : (
                   <ArrowDownRight size={18} />
                 )}
-                {percentage}
+                {percentage}%
               </span>
             </div>
-            <div className=' text-gray-500 ml-2'></div>
           </div>
         </CardTitle>
         {icon && <div className='text-gray-500'>{icon}</div>}
       </CardHeader>
+
       <CardContent className='pt-0'>
         <div className='text-2xl font-bold flex items-center justify-between'>
           <span>
-            <div className='text-gray-500 text-xs '>
+            <div className='text-gray-500 text-xs'>
               {formatDate(selectedDateRange.startDate)} –{' '}
               {formatDate(selectedDateRange.endDate)}
             </div>
-            {current?.impressions}
+            {prefix}
+            {currentImpressions.toLocaleString()}
+            {suffix}
           </span>
-          <div className='text-gray-500 text-lg  font-medium'>vs</div>
+          <div className='text-gray-500 text-lg font-medium'>vs</div>
           <span>
-            <div className='text-gray-500 text-xs '>
-              {formatDate(getLastYearDateRange(selectedDateRange).startDate)} –{' '}
-              {formatDate(getLastYearDateRange(selectedDateRange).endDate)}
+            <div className='text-gray-500 text-xs'>
+              {formatDate(previousDateRange?.startDate)} –{' '}
+              {formatDate(previousDateRange?.endDate)}
             </div>
-            {previous?.impressions}
+            {prefix}
+            {previousImpressions.toLocaleString()}
+            {suffix}
           </span>
         </div>
 
@@ -104,19 +90,17 @@ const MetricCard: React.FC<MetricCardProps> = ({
             <thead className='text-gray-500 text-xs'>
               <tr>
                 <th className='py-1'>Metric</th>
-                <th className='py-1'>Value </th>
+                <th className='py-1'>Value</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td className='py-1'>Changes</td>
-                <td className='py-1 font-medium'>
-                  {data?.change?.impressions?.change}
-                </td>
+                <td className='py-1'>Change</td>
+                <td className='py-1 font-medium'>{change.toLocaleString()}</td>
               </tr>
               <tr>
-                <td className='py-1'>Changes (%)</td>
-                <td className='py-1 font-medium'>{percentage}</td>
+                <td className='py-1'>Change (%)</td>
+                <td className='py-1 font-medium'>{percentage}%</td>
               </tr>
             </tbody>
           </table>

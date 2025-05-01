@@ -21,6 +21,7 @@ import { useAuth } from '../context/AuthContext';
 import MetricCardClick from '../components/dashboard/MetricCardClick';
 import WelcomeDashboard from '../components/dashboard/WelcomeDashboard';
 import PerformanceDashboardSkeleton from '../components/dashboard/PerformanceDashboardSkeleton';
+import CustomReportBuilder from '../components/dashboard/CustomReportBuilder';
 type MonthlyData = { name: string; impressions: number };
 type ChartDataPoint = { name: string; current: number; previous: number };
 const DashboardPage: React.FC = () => {
@@ -137,6 +138,7 @@ const DashboardPage: React.FC = () => {
   if (!merchantSelect?.id) {
     return <WelcomeDashboard />;
   }
+  console.log(reportData);
 
   return (
     <div className='space-y-6 animate-fade-in'>
@@ -145,12 +147,12 @@ const DashboardPage: React.FC = () => {
           Cohort analysis
         </h1>
         <p className='mb-4'>
-          Compares performance of items in stock during the same period.
+          Compares performance of items that had impressions during the same
+          period.
         </p>
         <ComparisonPeriod />
       </div>
 
-      {/* <FilterControls filters={filters} onFilterChange={handleFilterChange} /> */}
       {!reportData ? (
         <PerformanceDashboardSkeleton />
       ) : (
@@ -169,25 +171,7 @@ const DashboardPage: React.FC = () => {
               icon={<MousePointerClick size={18} />}
             />
           </div>
-          <div className='grid grid-cols-1 gap-6 xl:grid-cols-2'>
-            <Card>
-              <CardHeader>
-                <CardTitle>Impressions Over Time</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ImpressionsChart data={impressionsChartData} />
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Clicks Over Time</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ClicksChart data={clicksChartData} />
-              </CardContent>
-            </Card>
-          </div>
+          <CustomReportBuilder />
         </>
       )}
     </div>

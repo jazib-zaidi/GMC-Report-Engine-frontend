@@ -127,15 +127,10 @@ const sidebarItems: SidebarItem[] = [
       },
     ],
   },
-  {
-    id: 'Reports',
-    label: 'Reports',
-    icon: TableProperties,
-    path: '/reports',
-  },
+
   {
     id: 'ai-insights',
-    label: 'Keyword Optimizer',
+    label: 'AI Keyword Optimizer',
     icon: BrainCircuit,
     path: '/focus-keyword-ai',
   },

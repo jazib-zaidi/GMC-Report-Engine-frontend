@@ -1,38 +1,12 @@
 import React from 'react';
 import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/Card';
-import { MetricData } from '../../types';
-import { formatDate, getLastYearDateRange } from '../../utils/lastYearDate';
 import { useAuth } from '../../context/AuthContext';
-
-type ReportSummary = {
-  impressions: string;
-  clicks: string;
-};
-
-type ChangeSummary = {
-  change: string;
-  percent: string;
-};
-
-type ReportData = {
-  current: {
-    summary: ReportSummary;
-    data: any[];
-  };
-  previous: {
-    summary: ReportSummary;
-    data: any[];
-  };
-  change: {
-    impressions: ChangeSummary;
-    clicks: ChangeSummary;
-  };
-};
+import { formatDate, getLastYearDateRange } from '../../utils/lastYearDate';
 
 interface MetricCardProps {
   title: string;
-  data: ReportData;
+  data: any;
   prefix?: string;
   suffix?: string;
   icon?: React.ReactNode;
@@ -45,16 +19,24 @@ const MetricCardClick: React.FC<MetricCardProps> = ({
   suffix = '',
   icon,
 }) => {
-  const { selectedDateRange } = useAuth();
-  const rawChange = data?.change?.clicks?.change ?? '0';
-  const cleanedChange = rawChange.replace(/,/g, '');
-  const numericChange = Number(cleanedChange);
-  const isPositive = numericChange >= 0;
+  const { selectedDateRange, previousDateRange } = useAuth();
 
-  const percentage = data?.change?.clicks?.percent;
+  const current =
+    data?.allProductDataWithImpressions?.totalCurrentMetricsWithImpressions;
+  const previous =
+    data?.allProductDataWithImpressions?.totalPreviousMetricsWithImpressions;
 
-  const current = data?.current?.summary;
-  const previous = data?.previous?.summary;
+  const currentClicks = current?.clicks ?? 0;
+  const previousClicks = previous?.clicks ?? 0;
+
+  const change = currentClicks - previousClicks;
+  const percentage = previousClicks
+    ? `${((change / previousClicks) * 100).toFixed(2)}%`
+    : 'N/A';
+
+  const isPositive = change >= 0;
+
+  const formatNumber = (num: number) => num.toLocaleString();
 
   return (
     <Card className='transition-all duration-200 hover:shadow-md'>
@@ -87,19 +69,22 @@ const MetricCardClick: React.FC<MetricCardProps> = ({
               {formatDate(selectedDateRange.startDate)} –{' '}
               {formatDate(selectedDateRange.endDate)}
             </div>
-            {current?.clicks}
+            {prefix}
+            {formatNumber(currentClicks)}
+            {suffix}
           </span>
-          <div className='text-gray-500 text-lg  font-medium'>vs</div>
+          <div className='text-gray-500 text-lg font-medium'>vs</div>
           <span>
             <div className='text-gray-500 text-xs '>
-              {formatDate(getLastYearDateRange(selectedDateRange).startDate)} –{' '}
-              {formatDate(getLastYearDateRange(selectedDateRange).endDate)}
-            </div>{' '}
-            {previous?.clicks}
+              {formatDate(previousDateRange?.startDate)} –{' '}
+              {formatDate(previousDateRange?.endDate)}
+            </div>
+            {prefix}
+            {formatNumber(previousClicks)}
+            {suffix}
           </span>
         </div>
 
-        {/* Table: Current vs Previous */}
         <div className='mt-4 text-sm'>
           <table className='w-full text-left border-t border-gray-200 pt-2'>
             <thead className='text-gray-500 text-xs'>
@@ -111,15 +96,11 @@ const MetricCardClick: React.FC<MetricCardProps> = ({
             <tbody>
               <tr>
                 <td className='py-1'>Changes</td>
-                <td className='py-1 font-medium'>
-                  {data?.change?.clicks.change}
-                </td>
+                <td className='py-1 font-medium'>{formatNumber(change)}</td>
               </tr>
               <tr>
                 <td className='py-1'>Changes (%)</td>
-                <td className='py-1 font-medium'>
-                  {data?.change?.clicks?.percent}
-                </td>
+                <td className='py-1 font-medium'>{percentage}</td>
               </tr>
             </tbody>
           </table>

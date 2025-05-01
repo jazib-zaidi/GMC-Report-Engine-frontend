@@ -28,6 +28,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, sidebarOpen }) => {
     merchantSelect,
     filter,
     fetchGoogleProductCategory,
+    previousDateRange,
   } = useAuth();
 
   useEffect(() => {
@@ -35,9 +36,15 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, sidebarOpen }) => {
   }, []);
 
   useEffect(() => {
+    console.log('previousDateRange', previousDateRange);
     if (merchantSelect?.id && selectedDateRange) {
       toast.promise(
-        fetchReports(merchantSelect.id, selectedDateRange, filter),
+        fetchReports(
+          merchantSelect.id,
+          selectedDateRange,
+          filter,
+          previousDateRange
+        ),
         {
           loading: <b> Fetching reports, please wait...</b>,
           success: <b>Reports successfully loaded!</b>,
@@ -50,7 +57,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, sidebarOpen }) => {
         }
       );
     }
-  }, [merchantSelect, selectedDateRange, filter]);
+  }, [merchantSelect, selectedDateRange, filter, previousDateRange]);
 
   return (
     <header className='sticky top-0 z-[8] bg-white border-b border-gray-200 shadow-sm'>

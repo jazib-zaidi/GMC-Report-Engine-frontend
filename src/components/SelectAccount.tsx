@@ -16,6 +16,7 @@ const SelectAccount = () => {
     merchantSelect,
     fetchGoogleProductCategory,
     setSelectedDateRange,
+    setFilter,
   } = useAuth();
 
   return merchantAccounts && merchantAccounts.length > 0 ? (
@@ -30,9 +31,12 @@ const SelectAccount = () => {
               id: selectedMerchant.merchantId,
               name: selectedMerchant.name,
             });
+            setFilter({});
             let date = {
-              startDate: new Date(),
               endDate: new Date(),
+              startDate: new Date(
+                new Date().setDate(new Date().getDate() - 30)
+              ),
             };
 
             const formattedCurrentStart = format(date.startDate, 'yyyy-MM-dd');
@@ -60,6 +64,7 @@ const SelectAccount = () => {
                 ),
               }
             );
+            localStorage.setItem('previousType', 'year');
             setReportData(null);
           }
         }}
