@@ -138,7 +138,6 @@ const DashboardPage: React.FC = () => {
   if (!merchantSelect?.id) {
     return <WelcomeDashboard />;
   }
-  console.log(reportData);
 
   return (
     <div className='space-y-6 animate-fade-in'>

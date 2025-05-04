@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import {
   File,
   FilePlus,
@@ -7,12 +7,27 @@ import {
   UploadCloud,
   XCircle,
   Info,
+  MoveLeftIcon,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../../utils/cn';
 import { Progress } from '../../utils/Progress';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../context/AuthContext';
+import CountrySelect from './CountrySelect';
+const itemVariants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -10 },
+};
+
+import {
+  connect,
+  disconnect,
+  getSocketId,
+  mapping,
+  startMapping,
+} from '../../socket';
 
 // Types
 interface FileWithPath extends File {
@@ -41,8 +56,10 @@ const ExcelImportScreen = ({ setUploadedData }) => {
   const [optimizationStarted, setOptimizationStarted] = useState(false);
   const [isDragActive, setIsDragActive] = useState(false);
   const [progress, setProgress] = useState(0);
-  const { merchantSelect } = useAuth();
-  // Handlers
+  const { merchantSelect, country } = useAuth();
+  const [mappedData, setMappedData] = useState([]);
+  const [totalProduct, setTotalProduct] = useState(0);
+  const scrollRef = useRef(null);
   const handleFileChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const selectedFile = e.target.files?.[0];
@@ -58,7 +75,11 @@ const ExcelImportScreen = ({ setUploadedData }) => {
     },
     []
   );
-
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [mappedData]);
   const handleDragEnter = useCallback((e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -103,7 +124,24 @@ const ExcelImportScreen = ({ setUploadedData }) => {
     return '';
   };
 
+  useEffect(() => {
+    mapping((data) => {
+      setMappedData((prev) => {
+        const exists = prev.includes(data.data);
+        return exists ? prev : [...prev, data.data];
+      });
+      setTotalProduct(data.totalProduct);
+    });
+  }, []);
+
   const handleFileUpload = useCallback(() => {
+    // disconnect();
+    const socketId = getSocketId();
+    setMappedData([]);
+
+    connect();
+    startMapping();
+
     if (!file) {
       setErrorMessage('Please select a file to upload.');
       return;
@@ -132,7 +170,9 @@ const ExcelImportScreen = ({ setUploadedData }) => {
         .post(
           `${
             import.meta.env.VITE_API_URL
-          }/api/upload-xlsx${authToken()}&gmcAccountId=${merchantSelect.id}`,
+          }/api/upload-xlsx${authToken()}&gmcAccountId=${
+            merchantSelect.id
+          }&socketId=${socketId}`,
           formData,
           {
             headers: {
@@ -184,11 +224,17 @@ const ExcelImportScreen = ({ setUploadedData }) => {
       return () => clearTimeout(timer);
     }
   }, [optimizationStarted]);
-
+  useEffect(() => {
+    if (totalProduct > 0) {
+      const percentage = (mappedData.length / totalProduct) * 100;
+      setProgress(percentage.toFixed(1));
+    }
+  }, [mappedData.length, totalProduct]);
   return (
     <div className='flex items-center justify-center'>
       <div className='w-full max-w-2xl space-y-8'>
         {/* Header */}
+
         <div className='text-center space-y-3'>
           <h1 className='text-4xl font-bold text-gray-900 tracking-tight'>
             Import Excel for Keyword Optimization
@@ -223,21 +269,20 @@ const ExcelImportScreen = ({ setUploadedData }) => {
             />
 
             <div className='space-y-4'>
-              <div className='flex justify-center'>
-                {file ? (
-                  <div className='bg-blue-100 rounded-full p-3'>
-                    <File className='w-8 h-8 text-blue-600' />
-                  </div>
-                ) : (
-                  <div className='bg-gray-100 rounded-full p-3'>
-                    <UploadCloud className='w-8 h-8 text-gray-600' />
-                  </div>
-                )}
-              </div>
-
               <div className='space-y-2'>
                 {!file ? (
                   <>
+                    <div className='flex justify-center'>
+                      {file ? (
+                        <div className='bg-blue-100 rounded-full p-3'>
+                          <File className='w-8 h-8 text-blue-600' />
+                        </div>
+                      ) : (
+                        <div className='bg-gray-100 rounded-full p-3'>
+                          <UploadCloud className='w-8 h-8 text-gray-600' />
+                        </div>
+                      )}
+                    </div>
                     <h3 className='text-lg font-semibold text-gray-800'>
                       Drag and drop your Excel file
                     </h3>
@@ -255,34 +300,73 @@ const ExcelImportScreen = ({ setUploadedData }) => {
                   </>
                 ) : (
                   <div className='space-y-3'>
-                    <h3 className='text-lg font-semibold text-gray-800'>
-                      File Selected
-                    </h3>
-                    <AnimatePresence>
-                      <motion.div
-                        variants={fileVariants}
-                        initial='hidden'
-                        animate='visible'
-                        exit='exit'
-                        className='flex items-center justify-between gap-2 px-4 py-3 rounded-lg bg-white border border-blue-200 mx-auto max-w-md'
-                      >
-                        <div className='flex items-center gap-2 truncate'>
-                          <File className='w-5 h-5 text-blue-600 flex-shrink-0' />
-                          <span
-                            className='text-sm font-medium text-gray-800 truncate'
-                            title={file.name}
-                          >
-                            {file.name}
+                    {mappedData.length > 0 ? (
+                      <div className='  space-y-2'>
+                        {/* Fixed Header Row */}
+                        <div className='flex justify-between items-center px-2 text-gray-600 text-sm font-medium'>
+                          <span>Item ID</span>
+                          <span className='mx-auto text-gray-400'>
+                            <MoveLeftIcon />
                           </span>
+                          <span>Google Product Category</span>
                         </div>
-                        <button
-                          onClick={handleFileRemove}
-                          className='text-gray-500 hover:text-red-500 transition-colors'
+
+                        {/* Scrollable Content */}
+                        <div
+                          ref={scrollRef}
+                          className='space-y-4 h-[180px] overflow-y-scroll pr-1'
                         >
-                          <XCircle className='w-5 h-5' />
-                        </button>
-                      </motion.div>
-                    </AnimatePresence>
+                          <AnimatePresence>
+                            {mappedData.map((item, index) => (
+                              <motion.div
+                                key={item}
+                                variants={itemVariants}
+                                initial='hidden'
+                                animate='visible'
+                                exit='exit'
+                                layout
+                                className='bg-gray-100 shadow-md p-1 rounded-lg border border-gray-200'
+                              >
+                                <pre className='bg-gray-100 p-2 rounded text-sm overflow-x-auto text-start'>
+                                  <code>{item}</code>
+                                </pre>
+                              </motion.div>
+                            ))}
+                          </AnimatePresence>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <h3 className='text-lg font-semibold text-gray-800'>
+                          File Selected
+                        </h3>
+                        <AnimatePresence>
+                          <motion.div
+                            variants={fileVariants}
+                            initial='hidden'
+                            animate='visible'
+                            exit='exit'
+                            className='flex items-center justify-between gap-2 px-4 py-3 rounded-lg bg-white border border-blue-200 mx-auto max-w-md'
+                          >
+                            <div className='flex items-center gap-2 truncate'>
+                              <File className='w-5 h-5 text-blue-600 flex-shrink-0' />
+                              <span
+                                className='text-sm font-medium text-gray-800 truncate'
+                                title={file.name}
+                              >
+                                {file.name}
+                              </span>
+                            </div>
+                            <button
+                              onClick={handleFileRemove}
+                              className='text-gray-500 hover:text-red-500 transition-colors'
+                            >
+                              <XCircle className='w-5 h-5' />
+                            </button>
+                          </motion.div>
+                        </AnimatePresence>
+                      </>
+                    )}
                   </div>
                 )}
               </div>
@@ -334,8 +418,22 @@ const ExcelImportScreen = ({ setUploadedData }) => {
           {/* Upload Progress */}
           {isUploading && (
             <div className='mb-6 space-y-2'>
-              <div className='flex items-center justify-between text-sm'>
-                <span className='text-gray-600 font-medium'>Uploading...</span>
+              <div className='flex items-center justify-between text-sm w-full'>
+                <div className='text-gray-600 font-medium w-full'>
+                  {' '}
+                  {mappedData.length > 0 ? (
+                    <div className='flex justify-between w-full'>
+                      <span>
+                        Mapping Google product category to Item Id....{' '}
+                      </span>
+                      <span>
+                        {mappedData.length} / {totalProduct} total products
+                      </span>
+                    </div>
+                  ) : (
+                    ' Uploading...'
+                  )}
+                </div>
               </div>
               <div className='w-full bg-gray-200 rounded-full h-2 overflow-hidden'>
                 <Progress value={progress} />
@@ -344,7 +442,7 @@ const ExcelImportScreen = ({ setUploadedData }) => {
           )}
 
           {/* Processing Message */}
-          {isUploading && uploadProgress === 100 && (
+          {isUploading && (
             <div className='flex items-start gap-3 p-4 mb-6 rounded-lg bg-blue-50 border border-blue-200 text-blue-800'>
               <Info className='w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5' />
               <div className='text-sm'>
@@ -358,16 +456,20 @@ const ExcelImportScreen = ({ setUploadedData }) => {
             </div>
           )}
 
-          {/* Action Button */}
+          <CountrySelect />
+          <br />
+
           <button
             onClick={handleFileUpload}
-            disabled={isUploading || !file}
+            disabled={isUploading || (!file && !country)}
             className={cn(
               'w-full px-6 py-3.5 rounded-xl font-semibold text-white',
               'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700',
               'shadow-md hover:shadow-lg transition-all duration-300',
               'flex items-center justify-center gap-2',
-              isUploading || !file ? 'opacity-50 cursor-not-allowed' : ''
+              isUploading || !file || !country
+                ? 'opacity-50 cursor-not-allowed'
+                : ''
             )}
           >
             {isUploading ? (
@@ -397,7 +499,11 @@ const ExcelImportScreen = ({ setUploadedData }) => {
             ) : (
               <>
                 <UploadCloud className='w-5 h-5' />
-                {file ? 'Upload File' : 'Select a File to Begin'}
+                {file
+                  ? country
+                    ? 'Upload File'
+                    : 'Please select country'
+                  : 'Select a File to Begin'}
               </>
             )}
           </button>

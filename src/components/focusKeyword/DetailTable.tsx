@@ -4,7 +4,7 @@ export default function ProductTable({ product, isAi = false }) {
   const [products, setProducts] = useState(product);
   const [expandedItems, setExpandedItems] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
-  const [productsPerPage, setProductsPerPage] = useState(100);
+  const [productsPerPage, setProductsPerPage] = useState(50);
 
   // Calculate index range for current page products
   const indexOfLastProduct = currentPage * productsPerPage;
@@ -37,7 +37,7 @@ export default function ProductTable({ product, isAi = false }) {
   const escapeRegExp = (str) => {
     return str.replace(/[.*+?^=!:${}()|\[\]\/\\]/g, '\\$&'); // Escape special characters
   };
-  console.log('expandedItems', expandedItems);
+
   const highlightKeywords = (text, focusKeyword, id = 233) => {
     const selected = expandedItems[id];
 
@@ -336,7 +336,7 @@ export default function ProductTable({ product, isAi = false }) {
             onChange={handleProductsPerPageChange}
             className='border p-2 rounded'
           >
-            {[100, 150, 250, 500].map((option) => (
+            {[50, 100, 150, 250, 500].map((option) => (
               <option key={option} value={option}>
                 {option}
               </option>

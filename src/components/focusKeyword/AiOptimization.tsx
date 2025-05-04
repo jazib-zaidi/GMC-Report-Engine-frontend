@@ -73,7 +73,7 @@ const AIOptimization: React.FC<AIOptimizationScreenProps> = ({
       setIsOptimizing(true);
       setError(null);
       setTableData([]);
-      console.log(initialData);
+
       let rowIndex = 0;
 
       intervalRef.current = window.setInterval(() => {

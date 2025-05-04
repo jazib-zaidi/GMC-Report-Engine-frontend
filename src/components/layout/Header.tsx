@@ -36,7 +36,6 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, sidebarOpen }) => {
   }, []);
 
   useEffect(() => {
-    console.log('previousDateRange', previousDateRange);
     if (merchantSelect?.id && selectedDateRange) {
       toast.promise(
         fetchReports(

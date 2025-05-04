@@ -7,6 +7,9 @@ import {
   AlertTriangle,
   Loader,
   SheetIcon,
+  MoveLeftIcon,
+  MoveLeft,
+  ArrowLeft,
 } from 'lucide-react';
 import { cn } from '../utils/cn';
 import ExcelImportScreen from '../components/focusKeyword/uploadFile';
@@ -23,6 +26,8 @@ import {
   startGeneration,
 } from '../socket';
 import TokenDetailsModal from '../components/focusKeyword/TokenDetailsModal';
+import CountrySelect from '../components/focusKeyword/CountrySelect';
+import { useAuth } from '../context/AuthContext';
 
 interface OptimizationData {
   'Item ID': string;
@@ -38,34 +43,22 @@ const AIOptimizationScreen = () => {
   const [loading, setLoading] = useState(false);
   const [sheetUrl, setSheetUrl] = useState('');
   const [tokenDetails, setDetails] = useState({});
-  // useEffect(() => {
-  //   // googleSheet((data) => {
-  //   //   window.open(data.spreadsheetUrl, '_blank');
-  //   // });
+  const { country } = useAuth();
 
-  //   keywordGenerated((data) => {
-  //     console.log(data);
-  //   });
-  // }, []);
   const handleGoogleSheetNavigate = () => {
     window.open(sheetUrl, '_blank');
   };
   useEffect(() => {
-    onGenerationComplete((data) => {
-      console.log(data);
-    });
+    onGenerationComplete((data) => {});
     googleSheet((data) => {
       setSheetUrl(data.spreadsheetUrl);
     });
 
     promptTokens((data) => {
-      console.log(data);
       setDetails(data);
     });
 
     keywordGenerated((data: OptimizationData) => {
-      console.log(data);
-
       setReceivedRows((prevRows) => {
         // Check if the Item ID already exists in prevRows
         const isDuplicate = prevRows.some(
@@ -88,7 +81,7 @@ const AIOptimizationScreen = () => {
     setLoading(true);
     const token = localStorage.getItem('authToken');
     if (token) {
-      startGeneration({ data: uploadedData?.data, token });
+      startGeneration({ data: uploadedData?.data, token, country });
     }
   };
   // return <AIOptimization />;
@@ -114,8 +107,21 @@ const AIOptimizationScreen = () => {
           <ProductTable product={receivedRows.reverse()} isAi={true} />
         </div>
       ) : (
-        <div className='flex flex-col items-end gap-y-4 w-full'>
+        <div className='flex flex-col  gap-y-4 w-full'>
           <div className=''>
+            <Button
+              onClick={() => {
+                setUploadedData({});
+              }}
+              variant='outline'
+            >
+              <ArrowLeft /> Go Back
+            </Button>
+          </div>
+          <div className='flex items-center justify-between'>
+            <div className='w-60'>
+              <CountrySelect showLabel={false} />
+            </div>
             <button
               disabled={loading}
               onClick={handleGenerate}

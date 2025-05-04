@@ -22,8 +22,6 @@ const Layout: React.FC = () => {
   const params = new URLSearchParams(location.search);
   const token = params.get('token');
 
-  console.log('Token:', token);
-
   if (token) {
     localStorage.setItem('authToken', token);
   }

@@ -83,6 +83,8 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({
     setIsLoading(false);
   }, []);
 
+  const [country, setCountry] = useState({ value: 'AU', label: 'Australia' });
+
   const authToken = () => {
     const token = localStorage.getItem('authToken');
     if (token) {
@@ -217,6 +219,8 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({
         fetchGoogleProductCategory,
         setPreviousDateRange,
         previousDateRange,
+        setCountry,
+        country,
       }}
     >
       {children}
