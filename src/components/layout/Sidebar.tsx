@@ -149,7 +149,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     sidebarItems = [
       {
         id: 'xml-converter',
-        label: 'Xml to google Sheet',
+        label: 'XML to Google Sheet',
         icon: SheetIcon,
         path: '/xml-converter',
       },
