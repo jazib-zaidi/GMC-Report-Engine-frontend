@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '../../utils/cn';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, SheetIcon } from 'lucide-react';
 
 import {
   BarChart2,
@@ -38,109 +38,123 @@ const dashboard = (
     ></path>
   </svg>
 );
-const sidebarItems: SidebarItem[] = [
-  {
-    id: 'dashboard',
-    label: 'Dashboard',
-    icon: LayoutDashboard,
-    path: '/dashboard',
-  },
-  {
-    id: 'insights-product',
-    label: 'Product Insights',
-    icon: PackageSearch,
-    path: '/insights/product',
-    children: [
-      {
-        id: 'Insights-by-Product',
-        label: 'Insights by Product',
-        path: '/insights/product',
-      },
-      {
-        id: 'Insights-by-Brand',
-        label: 'Insights by Brand',
-        path: '/insights/brand',
-      },
-      {
-        id: 'Product-type',
-        label: 'Product Types',
-        path: '/insights/type1',
-        children: [
-          {
-            id: 'type1',
-            label: 'Product Type 1',
-            path: '/insights/type1',
-          },
-          {
-            id: 'type2',
-            label: 'Product Type 2',
-            path: '/insights/type2',
-          },
-          {
-            id: 'type3',
-            label: 'Product Type 3',
-            path: '/insights/type3',
-          },
-          {
-            id: 'type4',
-            label: 'Product Type 4',
-            path: '/insights/type4',
-          },
-          {
-            id: 'type5',
-            label: 'Product Type 5',
-            path: '/insights/type5',
-          },
-        ],
-      },
-      {
-        id: 'google-category',
-        label: 'Google Product Category',
-        path: '/insights/categoryL1',
-        children: [
-          {
-            id: 'categoryL1',
-            label: 'Google Category Type 1',
-            path: '/insights/categoryL1',
-          },
-          {
-            id: 'categoryL2',
-            label: 'Google Category Type 2',
-            path: '/insights/categoryL2',
-          },
-          {
-            id: 'categoryL3',
-            label: 'Google Category Type 3',
-            path: '/insights/categoryL3',
-          },
-          {
-            id: 'categoryL4',
-            label: 'Google Category Type 4',
-            path: '/insights/categoryL4',
-          },
-          {
-            id: 'categoryL5',
-            label: 'Google Category Type 5',
-            path: '/insights/categoryL5',
-          },
-        ],
-      },
-    ],
-  },
 
-  {
-    id: 'ai-insights',
-    label: 'AI Keyword Optimizer',
-    icon: BrainCircuit,
-    path: '/focus-keyword-ai',
-  },
-];
-
-const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
+const Sidebar: React.FC<SidebarProps> = ({
+  isOpen,
+  toggleSidebar,
+  merchantSelect,
+}) => {
   const location = useLocation();
   const [expanded, setExpanded] = useState<string | null>(null);
   const [subExpanded, setSubExpanded] = useState<string | null>(null);
+  let sidebarItems: SidebarItem[] = [
+    {
+      id: 'dashboard',
+      label: 'Dashboard',
+      icon: LayoutDashboard,
+      path: '/dashboard',
+    },
+    {
+      id: 'insights-product',
+      label: 'Product Insights',
+      icon: PackageSearch,
+      path: '/insights/product',
+      children: [
+        {
+          id: 'Insights-by-Product',
+          label: 'Insights by Product',
+          path: '/insights/product',
+        },
+        {
+          id: 'Insights-by-Brand',
+          label: 'Insights by Brand',
+          path: '/insights/brand',
+        },
+        {
+          id: 'Product-type',
+          label: 'Product Types',
+          path: '/insights/type1',
+          children: [
+            {
+              id: 'type1',
+              label: 'Product Type 1',
+              path: '/insights/type1',
+            },
+            {
+              id: 'type2',
+              label: 'Product Type 2',
+              path: '/insights/type2',
+            },
+            {
+              id: 'type3',
+              label: 'Product Type 3',
+              path: '/insights/type3',
+            },
+            {
+              id: 'type4',
+              label: 'Product Type 4',
+              path: '/insights/type4',
+            },
+            {
+              id: 'type5',
+              label: 'Product Type 5',
+              path: '/insights/type5',
+            },
+          ],
+        },
+        {
+          id: 'google-category',
+          label: 'Google Product Category',
+          path: '/insights/categoryL1',
+          children: [
+            {
+              id: 'categoryL1',
+              label: 'Google Category Type 1',
+              path: '/insights/categoryL1',
+            },
+            {
+              id: 'categoryL2',
+              label: 'Google Category Type 2',
+              path: '/insights/categoryL2',
+            },
+            {
+              id: 'categoryL3',
+              label: 'Google Category Type 3',
+              path: '/insights/categoryL3',
+            },
+            {
+              id: 'categoryL4',
+              label: 'Google Category Type 4',
+              path: '/insights/categoryL4',
+            },
+            {
+              id: 'categoryL5',
+              label: 'Google Category Type 5',
+              path: '/insights/categoryL5',
+            },
+          ],
+        },
+      ],
+    },
 
+    {
+      id: 'ai-insights',
+      label: 'AI Keyword Optimizer',
+      icon: BrainCircuit,
+      path: '/focus-keyword-ai',
+    },
+  ];
+
+  if (!merchantSelect) {
+    sidebarItems = [
+      {
+        id: 'xml-converter',
+        label: 'Xml to google Sheet',
+        icon: SheetIcon,
+        path: '/xml-converter',
+      },
+    ];
+  }
   const toggleExpand = (id: string) => {
     setExpanded((prev) => (prev === id ? null : id));
   };

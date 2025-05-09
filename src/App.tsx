@@ -13,6 +13,7 @@ import DashboardPage from './pages/DashboardPage';
 import InsightsPage from './pages/InsightsPage';
 import CustomReportBuilder from './pages/CustomReportBuilderPage';
 import FocusKeywordAI from './pages/FocusKeywordAI';
+import XmlConverter from './pages/XmlConverter';
 
 function App() {
   return (
@@ -21,11 +22,9 @@ function App() {
         <Routes>
           <Route path='/login' element={<LoginPage />} />
           <Route path='/' element={<Layout />}>
-            <Route
-              index
-              element={<Navigate to='/focus-keyword-ai' replace />}
-            />
+            <Route index element={<Navigate to='/dashboard' replace />} />
             <Route path='dashboard' element={<DashboardPage />} />
+            <Route path='xml-converter' element={<XmlConverter />} />
             {/* <Route path='reports' element={<CustomReportBuilder />} /> */}
             <Route path='insights/:insightType' element={<InsightsPage />} />
             <Route path='focus-keyword-ai' element={<FocusKeywordAI />} />

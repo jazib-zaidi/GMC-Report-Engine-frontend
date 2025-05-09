@@ -33,9 +33,12 @@ const Layout: React.FC = () => {
   return (
     <div className='flex h-screen bg-[#f3f6f9]'>
       <Toaster position='top-center' reverseOrder={false} />
-      {merchantSelect && (
-        <Sidebar isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
-      )}
+
+      <Sidebar
+        merchantSelect={merchantSelect}
+        isOpen={sidebarOpen}
+        toggleSidebar={toggleSidebar}
+      />
 
       <div className='flex w-full flex-col flex-1 w-0 overflow-hidden'>
         <Header sidebarOpen={merchantSelect} toggleSidebar={toggleSidebar} />
