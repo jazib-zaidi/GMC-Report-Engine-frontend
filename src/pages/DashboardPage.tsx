@@ -22,6 +22,8 @@ import MetricCardClick from '../components/dashboard/MetricCardClick';
 import WelcomeDashboard from '../components/dashboard/WelcomeDashboard';
 import PerformanceDashboardSkeleton from '../components/dashboard/PerformanceDashboardSkeleton';
 import CustomReportBuilder from '../components/dashboard/CustomReportBuilder';
+import LiaDashboard from '../components/dashboard/LiaDashboard';
+import LiaDashboardSecond from '../components/dashboard/LiaDashboardSecond';
 type MonthlyData = { name: string; impressions: number };
 type ChartDataPoint = { name: string; current: number; previous: number };
 const DashboardPage: React.FC = () => {
@@ -30,7 +32,7 @@ const DashboardPage: React.FC = () => {
     trafficSource: 'organic',
   });
 
-  const { reportData, merchantSelect } = useAuth();
+  const { reportData, merchantSelect, selectedAdsAccount } = useAuth();
 
   function generateImpressionsChartData(
     current: MonthlyData[],
@@ -135,8 +137,12 @@ const DashboardPage: React.FC = () => {
     }));
   };
 
-  if (!merchantSelect?.id) {
+  if (!merchantSelect?.id && !selectedAdsAccount?.customer_id) {
     return <WelcomeDashboard />;
+  }
+
+  if (selectedAdsAccount?.customer_id) {
+    return <LiaDashboard />;
   }
 
   return (

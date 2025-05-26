@@ -31,7 +31,7 @@ const Layout: React.FC = () => {
   }
 
   return (
-    <div className='flex h-screen bg-[#f3f6f9]'>
+    <div className='flex h-screen bg-[#f5f5f5]'>
       <Toaster position='top-center' reverseOrder={false} />
 
       <Sidebar

@@ -6,6 +6,7 @@ import Select from '../ui/Select';
 import SelectAccount from '../SelectAccount';
 import { is } from 'date-fns/locale';
 import toast from 'react-hot-toast';
+import SelectAdsAccount from '../SelectAdsAccount';
 
 interface HeaderProps {
   toggleSidebar: () => void;
@@ -29,6 +30,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, sidebarOpen }) => {
     filter,
     fetchGoogleProductCategory,
     previousDateRange,
+    selectedAdsAccount,
   } = useAuth();
 
   useEffect(() => {
@@ -59,15 +61,9 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, sidebarOpen }) => {
   }, [merchantSelect, selectedDateRange, filter, previousDateRange]);
 
   return (
-    <header className='sticky top-0 z-[8] bg-white border-b border-gray-200 shadow-sm'>
+    <header className='sticky top-0 z-[8] bg-black border-b border-gray-200 shadow-sm'>
       <div className='flex items-center justify-between h-16 px-4 md:px-6'>
-        <div className='flex items-center gap-3'>
-          {!sidebarOpen && (
-            <div className='text-xl font-bold text-primary-700'>
-              InsightsDash
-            </div>
-          )}
-        </div>
+        <div className='flex items-center gap-3'></div>
         <div className='flex items-center gap-3'>
           {/* {merchantAccounts && merchantAccounts.length > 0 && (
             <Select
@@ -91,17 +87,18 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, sidebarOpen }) => {
             </Select>
           )} */}
           {merchantSelect?.id && <SelectAccount />}
+          {/* {selectedAdsAccount?.customer_id && <SelectAdsAccount />} */}
 
           <div className='flex items-center gap-2'>
             {user && (
               <div className='flex items-center gap-2 w-32'>
                 <button
-                  className='group flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'
+                  className='group flex w-full items-center px-4 py-2 text-sm text-white hover:bg-gray-700 rounded-md bg-gray-800'
                   onClick={logout}
                 >
                   <LogOut
                     size={16}
-                    className='mr-3 text-gray-400 group-hover:text-gray-500'
+                    className='mr-3 text-white group-hover:text-white'
                   />
                   Sign out
                 </button>

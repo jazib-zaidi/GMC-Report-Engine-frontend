@@ -14,6 +14,9 @@ import InsightsPage from './pages/InsightsPage';
 import CustomReportBuilder from './pages/CustomReportBuilderPage';
 import FocusKeywordAI from './pages/FocusKeywordAI';
 import XmlConverter from './pages/XmlConverter';
+import OnlineDashboard from './components/dashboard/OnlineDashboard';
+import LocalDashboard from './components/dashboard/LocalDashboard';
+import StoreDetails from './components/dashboard/StoreDetails';
 
 function App() {
   return (
@@ -24,6 +27,9 @@ function App() {
           <Route path='/' element={<Layout />}>
             <Route index element={<Navigate to='/dashboard' replace />} />
             <Route path='dashboard' element={<DashboardPage />} />
+            <Route path='Online' element={<OnlineDashboard />} />
+            <Route path='LOCAL' element={<LocalDashboard />} />
+            <Route path='/LOCAL/:storeId' element={<StoreDetails />} />
             <Route path='xml-converter' element={<XmlConverter />} />
             {/* <Route path='reports' element={<CustomReportBuilder />} /> */}
             <Route path='insights/:insightType' element={<InsightsPage />} />

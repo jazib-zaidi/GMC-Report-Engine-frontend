@@ -64,3 +64,30 @@
     transform: rotate(360deg);
   }
 }
+
+.custom-table-class {
+  margin-top: 4px;
+  margin-bottom: 12px;
+}
+.custom-table-class ul {
+  margin: 0;
+  padding-left: 20px; /* keep some indentation */
+  line-height: 4px;
+}
+
+.custom-table-class li {
+  margin: 4px 0; /* reduce vertical space between list items */
+  padding: 0;
+  line-height: 22px;
+  list-style-type: disc; /* optional: default bullet */
+}
+
+.custom-top-performance-tag a {
+  color: #3d91ff;
+  text-decoration: underline;
+}
+
+.custom-AI-button {
+  background: linear-gradient(90deg, #a457f7, #3f80f6, #a457f7);
+  background-size: 300%;
+}

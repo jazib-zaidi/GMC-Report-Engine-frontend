@@ -12,6 +12,7 @@ type MerchantSelect = {
   id: string;
   name: string;
 };
+import { format, subDays } from 'date-fns';
 interface AuthContextProps {
   user: User | null;
   isLoading: boolean;
@@ -60,12 +61,18 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({
 }) => {
   const [user, setUser] = useState<User | null>(null);
   const [merchantAccounts, setMerchantAccounts] = useState<[] | null>(null);
+  const [adsAccounts, setAdsAccounts] = useState<[] | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [reportData, setReportData] = useState<ReportData | null>(null);
+  const [liaReportData, setLiaReportData] = useState<ReportData | null>(null);
+  const [selectedAdsAccount, setSelectedAdsAccount] = useState<string | null>(
+    null
+  );
   const [selectedDateRange, setSelectedDateRange] = useState<string | null>(
     null
   );
+  const [liaStoreData, setLiaStoreData] = useState([]);
   const [previousDateRange, setPreviousDateRange] = useState(null);
   const [merchantSelect, setMerchantSelect] = useState<MerchantSelect | null>(
     null
@@ -82,9 +89,12 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({
     }
     setIsLoading(false);
   }, []);
-
+  const [aiInsigthResponse, setAiInsigthResponse] = useState(null);
   const [country, setCountry] = useState({ value: 'AU', label: 'Australia' });
-
+  const [formattedDateRange, setFormattedDateRange] = useState({
+    startDate: format(subDays(new Date(), 30), 'yyyy-MM-dd'),
+    endDate: format(new Date(), 'yyyy-MM-dd'),
+  });
   const authToken = () => {
     const token = localStorage.getItem('authToken');
     if (token) {
@@ -126,6 +136,25 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({
       setMerchantAccounts(merchantAccounts);
     } catch (error) {
       console.error('Error fetching merchant accounts:', error);
+    }
+  };
+  const fetchAdsAccounts = async () => {
+    const url = `${
+      import.meta.env.VITE_API_URL
+    }/api/list-ads-Accounts${authToken()}`;
+
+    try {
+      if (!user) return;
+
+      const response = await axios.get(url, {
+        withCredentials: true,
+      });
+
+      const adsAccounts = response.data.accounts;
+
+      setAdsAccounts(adsAccounts);
+    } catch (error) {
+      console.error('Error fetching ads accounts:', error);
     }
   };
 
@@ -187,6 +216,147 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({
       }
     }
   };
+  const fetchLiaReports = async (
+    adsAccountId,
+    dateRange,
+    channel = 'LOCAL'
+  ) => {
+    const url = `${import.meta.env.VITE_API_URL}/api/lia-report${authToken()}`;
+    try {
+      const response = await axios.post(
+        url,
+        {
+          adsAccountId,
+          dateRange,
+          channel,
+        },
+        {
+          withCredentials: true,
+        }
+      );
+
+      setLiaReportData(response.data);
+
+      return response.data;
+    } catch (error: any) {
+      if (error.response) {
+        toast.error('Please Login Again');
+        console.error(
+          'API Error:',
+          error.response.data?.message || 'Unknown error'
+        );
+      } else if (error.request) {
+        // No response from server
+        console.error('Network Error: No response received');
+      } else {
+        // Other error
+        console.error('Error:', error.message);
+      }
+    }
+  };
+  const fetchLiaStoreData = async (adsAccountId, dateRange, storeId) => {
+    const url = `${
+      import.meta.env.VITE_API_URL
+    }/api/list-store-data${authToken()}`;
+    try {
+      const response = await axios.post(
+        url,
+        {
+          adsAccountId,
+          dateRange,
+          storeId,
+        },
+        {
+          withCredentials: true,
+        }
+      );
+
+      setLiaStoreData(response.data);
+
+      return response.data;
+    } catch (error: any) {
+      if (error.response) {
+        toast.error('Please Login Again');
+        console.error(
+          'API Error:',
+          error.response.data?.message || 'Unknown error'
+        );
+      } else if (error.request) {
+        // No response from server
+        console.error('Network Error: No response received');
+      } else {
+        // Other error
+        console.error('Error:', error.message);
+      }
+    }
+  };
+
+  const askAiInsigth = async (adsAccountId, question) => {
+    const url = `${import.meta.env.VITE_API_URL}/api/ai-insigth${authToken()}`;
+    try {
+      const response = await axios.post(
+        url,
+        {
+          adsAccountId,
+          question,
+        },
+        {
+          withCredentials: true,
+        }
+      );
+
+      setAiInsigthResponse(response.data);
+
+      return response.data;
+    } catch (error: any) {
+      if (error.response) {
+        toast.error('Please Login Again');
+        console.error(
+          'API Error:',
+          error.response.data?.message || 'Unknown error'
+        );
+      } else if (error.request) {
+        // No response from server
+        console.error('Network Error: No response received');
+      } else {
+        // Other error
+        console.error('Error:', error.message);
+      }
+    }
+  };
+
+  const exportLiaSheet = async (exportData) => {
+    const url = `${
+      import.meta.env.VITE_API_URL
+    }/api/lia-report-sheet${authToken()}`;
+    try {
+      const response = await axios.post(
+        url,
+        {
+          exportData,
+        },
+        {
+          withCredentials: true,
+        }
+      );
+
+      return response.data;
+    } catch (error: any) {
+      if (error.response) {
+        toast.error('Please Login Again');
+        console.error(
+          'API Error:',
+          error.response.data?.message || 'Unknown error'
+        );
+      } else if (error.request) {
+        // No response from server
+        console.error('Network Error: No response received');
+      } else {
+        // Other error
+        console.error('Error:', error.message);
+      }
+    }
+  };
 
   const logout = () => {
     logoutUser();
@@ -221,6 +391,21 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({
         previousDateRange,
         setCountry,
         country,
+        adsAccounts,
+        fetchAdsAccounts,
+        fetchLiaReports,
+        liaReportData,
+        setSelectedAdsAccount,
+        selectedAdsAccount,
+        fetchLiaStoreData,
+        liaStoreData,
+        setFormattedDateRange,
+        formattedDateRange,
+        setLiaReportData,
+        askAiInsigth,
+        aiInsigthResponse,
+        setLiaStoreData,
+        exportLiaSheet,
       }}
     >
       {children}

@@ -50,7 +50,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   let sidebarItems: SidebarItem[] = [
     {
       id: 'dashboard',
-      label: 'Dashboard',
+      label: 'Reports',
       icon: LayoutDashboard,
       path: '/dashboard',
     },
@@ -136,6 +136,12 @@ const Sidebar: React.FC<SidebarProps> = ({
         },
       ],
     },
+    {
+      id: 'xml-converter',
+      label: 'XML Shopping Feed',
+      icon: SheetIcon,
+      path: '/xml-converter',
+    },
 
     {
       id: 'ai-insights',
@@ -148,10 +154,28 @@ const Sidebar: React.FC<SidebarProps> = ({
   if (!merchantSelect) {
     sidebarItems = [
       {
+        id: 'dashboard',
+        label: 'Reports',
+        icon: LayoutDashboard,
+        path: '/dashboard',
+      },
+      {
         id: 'xml-converter',
-        label: 'XML to Google Sheet',
+        label: 'XML Previewer',
         icon: SheetIcon,
         path: '/xml-converter',
+      },
+      {
+        id: 'ai-insights',
+        label: 'AI Keyword Optimizer',
+        icon: BrainCircuit,
+        path: '/focus-keyword-ai',
+      },
+      {
+        id: 'ai-description',
+        label: 'AI Description Optimizer',
+        icon: BrainCircuit,
+        path: '/focus-keyword-ai',
       },
     ];
   }
@@ -177,14 +201,18 @@ const Sidebar: React.FC<SidebarProps> = ({
           isOpen ? 'translate-x-0 ' : '-translate-x-full hidden'
         )}
       >
-        <div className='flex h-16 items-center justify-between px-4 border-b border-gray-200 lg:h-auto lg:py-4'>
-          <div className='text-xl font-bold text-primary-700'>InsightsDash</div>
-          <button
-            className='p-2 rounded-md hover:bg-gray-100 '
-            onClick={toggleSidebar}
-          >
-            <X size={20} />
-          </button>
+        <div className='flex items-center justify-between px-4 border-b border-gray-200 bg-black   h-16 gap-x-4'>
+          <div className='text-xl font-bold text-primary-700 flex'>
+            <button className='p-2 rounded-md ' onClick={toggleSidebar}>
+              <Menu size={20} color='white' />
+            </button>
+
+            <img
+              className='w-28'
+              alt='FeedOps'
+              src='https://app.feedops.com/packs/media/images/feedops_logo_horiz-1375d7fc.png'
+            />
+          </div>
         </div>
         <nav className='p-2 overflow-y-auto h-[calc(100vh-4rem)] lg:h-[calc(100vh-5rem)]'>
           <ul className='space-y-1'>
