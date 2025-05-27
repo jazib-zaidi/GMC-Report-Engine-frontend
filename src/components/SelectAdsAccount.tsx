@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Loader } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const SelectAdsAccount = () => {
   const {
@@ -81,16 +82,27 @@ const SelectAdsAccount = () => {
                     : ''
                 }`}
                 onClick={() => {
-                  setSelectedAccount(account);
-                  setSearchTerm(account.name);
-                  setShowDropdown(false);
-                  setSelectedAdsAccount(account);
-                  fetchLiaReports(
-                    account.customer_id,
-                    formattedDateRange,
-                    'ALL'
-                  );
-                  setLiaReportData(null);
+                  if (account.customer_id == 7464049119) {
+                    setSelectedAccount(account);
+                    setSearchTerm(account.name);
+                    setShowDropdown(false);
+                    setSelectedAdsAccount(account);
+                    fetchLiaReports(
+                      account.customer_id,
+                      formattedDateRange,
+                      'ALL'
+                    );
+                    setLiaReportData(null);
+                  } else {
+                    toast(
+                      `Account ${account.name} (ID: ${account.customer_id}) is not eligible for the LIA performance report.
+
+Please select "RunDNA" to view LIA data. Once the LIA feed is set up in FeedOps, it will appear here.`,
+                      {
+                        duration: 10000,
+                      }
+                    );
+                  }
                 }}
               >
                 <strong>{account.name}</strong> (ID: {account.customer_id})
