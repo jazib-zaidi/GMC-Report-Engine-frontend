@@ -82,27 +82,16 @@ const SelectAdsAccount = () => {
                     : ''
                 }`}
                 onClick={() => {
-                  if (account.customer_id == 7464049119) {
-                    setSelectedAccount(account);
-                    setSearchTerm(account.name);
-                    setShowDropdown(false);
-                    setSelectedAdsAccount(account);
-                    fetchLiaReports(
-                      account.customer_id,
-                      formattedDateRange,
-                      'ALL'
-                    );
-                    setLiaReportData(null);
-                  } else {
-                    toast(
-                      `Account ${account.name} (ID: ${account.customer_id}) is not eligible for the LIA performance report.
-
-Please select "RunDNA" to view LIA data. Once the LIA feed is set up in FeedOps, it will appear here.`,
-                      {
-                        duration: 10000,
-                      }
-                    );
-                  }
+                  setSelectedAccount(account);
+                  setSearchTerm(account.name);
+                  setShowDropdown(false);
+                  setSelectedAdsAccount(account);
+                  fetchLiaReports(
+                    account.customer_id,
+                    formattedDateRange,
+                    'ALL'
+                  );
+                  setLiaReportData(null);
                 }}
               >
                 <strong>{account.name}</strong> (ID: {account.customer_id})
