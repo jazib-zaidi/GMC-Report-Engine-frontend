@@ -165,18 +165,6 @@ const Sidebar: React.FC<SidebarProps> = ({
         icon: SheetIcon,
         path: '/xml-converter',
       },
-      {
-        id: 'ai-insights',
-        label: 'AI Keyword Optimizer',
-        icon: BrainCircuit,
-        path: '/focus-keyword-ai',
-      },
-      {
-        id: 'ai-description',
-        label: 'AI Description Optimizer',
-        icon: BrainCircuit,
-        path: '/focus-keyword-ai',
-      },
     ];
   }
   const toggleExpand = (id: string) => {

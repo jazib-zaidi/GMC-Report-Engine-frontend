@@ -2,7 +2,8 @@ import { ArrowDown, Eraser, MoveDownRight, SendHorizontal } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import AiTable from '../../utils/AiTable';
-import Button from '../ui/Button';
+import { Button } from '../ui/Button';
+import { AIInsigthQuestions } from './AIInsigthQuestions';
 
 const AiInsight = () => {
   const [search, setSearch] = useState('');
@@ -36,12 +37,13 @@ const AiInsight = () => {
 
     // Update last question with answer when response arrives
     if (!loading && aiInsigthResponse) {
+      const { queryData, question, response } = aiInsigthResponse;
       setChat((prev) =>
         prev.map((item, i) =>
           i === prev.length - 1
             ? {
                 ...item,
-                answer: aiInsigthResponse,
+                answer: { queryData, question, response },
                 loading: false,
                 saved: false,
               }
@@ -53,7 +55,18 @@ const AiInsight = () => {
 
   const handleSuggestionClick = (suggestion: string) => {
     setSearch(suggestion);
-    inputRef.current?.focus();
+    if (suggestion.trim() === '') return;
+
+    // Add question with loading state, answer null initially
+    setChat((prev) => [
+      ...prev,
+      { question: suggestion, answer: null, loading: true, saved: false },
+    ]);
+
+    // Trigger AI call
+    askAiInsigth(selectedAdsAccount?.customer_id, suggestion);
+
+    setSearch('');
   };
 
   const handleSearchClick = () => {
@@ -114,10 +127,8 @@ const AiInsight = () => {
 
     if (isAtBottom) {
       setIsScroolBottom(false);
-      console.log('You are at the bottom');
     } else {
       setIsScroolBottom(true);
-      console.log('Not at the bottom');
     }
   };
 
@@ -163,7 +174,7 @@ const AiInsight = () => {
       },
     ]);
   };
-  console.log(chat);
+
   return (
     <div className='bg-white shadow rounded-lg overflow-hidden   mx-auto'>
       <div className='px-4 py-5 sm:px-6 border-b border-gray-200 flex flex-col items-center'>
@@ -171,7 +182,7 @@ const AiInsight = () => {
           <div className=' sm:px-6  flex flex-col items-center'>
             <img className='w-20' src='/aiIcon.png' alt='AI Icon' />
             <h3 className='text-2xl leading-6 font-medium text-gray-900 mt-4'>
-              Ask me anything!
+              FeedOps AI
             </h3>
 
             <div className='flex justify-center gap-3 mt-8 '>
@@ -196,7 +207,7 @@ const AiInsight = () => {
         <div
           ref={chatContainerRef}
           onScroll={handleScroll}
-          className='space-y-6 w-full max-h-[400px] overflow-scroll'
+          className='space-y-6 w-full max-h-[600px] overflow-scroll'
         >
           {chat?.map(({ question, answer, loading, saved }, idx) => (
             <div key={idx} className='flex flex-col space-y-6'>
@@ -215,7 +226,7 @@ const AiInsight = () => {
               </div>
 
               {/* AI answer aligned left */}
-              <div className='self-start max-w-[70%] '>
+              <div className='self-start max-w-[80%] '>
                 <div className='flex items-start gap-x-2 '>
                   <img
                     className='w-10 border rounded-full p-[6px]'
@@ -225,9 +236,7 @@ const AiInsight = () => {
                   <div className='border rounded-tl-xl rounded-tr-xl rounded-bl-xl rounded-br-xl p-2 bg-white shadow-sm text-sm'>
                     <p className='text-gray-800 whitespace-pre-wrap '>
                       {loading ? (
-                        <span className='text-gray-400 italic'>
-                          Waiting for AI response...
-                        </span>
+                        <img className='w-36' src='wota5ry4dbdx.gif' alt='' />
                       ) : answer?.response?.length > 0 ? (
                         <div className=''>
                           <span className='block text-gray-800'>
@@ -250,8 +259,8 @@ const AiInsight = () => {
                                     No
                                   </Button>
                                   <Button
-                                    className='bg-black p-x-4 text-sm h-7'
-                                    variant='secondary'
+                                    className=' p-x-4 text-sm h-7 text-white'
+                                    variant='default'
                                     onClick={() =>
                                       handleInsertInReport({
                                         question,
@@ -281,33 +290,24 @@ const AiInsight = () => {
               </div>
             </div>
           ))}
+          <div className='relative w-full mt-8'>
+            {chat.length > 0 && chat[0].answer && (
+              <div className='flex justify-center gap-3 mt-8 '>
+                {questions.map((q, index) => (
+                  <div
+                    key={index}
+                    className='p-4 border border-gray-200 rounded-md shadow-sm cursor-pointer hover:bg-gray-50 max-w-xs'
+                    onClick={() => handleSuggestionClick(q)}
+                  >
+                    <p className='text-sm text-gray-500'>{q}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-
         <div className='relative w-full mt-8'>
-          <input
-            ref={inputRef}
-            className='p-4 border border-gray-300 rounded-md shadow-md w-full'
-            id='AI'
-            type='text'
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder='Ask Anything...'
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                handleSearchClick();
-              }
-            }}
-            autoComplete='off'
-          />
-
-          <button
-            onClick={handleSearchClick}
-            className='absolute bottom-[11px] right-4 flex items-center justify-center bg-[#33a852] p-2 rounded-md mt-2 cursor-pointer hover:bg-green-700 transition'
-            aria-label='Send question'
-          >
-            <SendHorizontal color='white' size={20} />
-          </button>
+          {' '}
           {isScroolBottom && (
             <button
               onClick={() =>
@@ -333,7 +333,7 @@ const AiInsight = () => {
             </button>
           )}
         </div>
-        <p className='text-sm text-gray-600 text-center mt-2 italic'>
+        <p className='text-sm text-gray-600 text-center mt-2 italic mt-10'>
           FeedOps AI can make mistakes. We are constantly in beta, so always
           double-check important insights.
         </p>

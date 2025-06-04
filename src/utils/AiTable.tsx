@@ -5,7 +5,6 @@ const AiTable = ({ AiResponse }) => {
   const rowsPerPage = 4;
   const replaceHeader = [{ cost_micros: 'cost' }];
 
-  // Extract dynamic fields from query
   const dynamicFields = [
     ...AiResponse.queryData.matchAll(/\b(metrics|segments)\.(\w+)/g),
   ].map((match) => {
@@ -16,13 +15,17 @@ const AiTable = ({ AiResponse }) => {
   });
 
   const uniqueDynamicFields = Array.from(new Set(dynamicFields));
-
+  let dynamicField = [];
+  const query = AiResponse.queryData.split('ORDER BY ')[1];
+  if (query == 'metrics.ctr ASC') {
+    dynamicField = ['ctr'];
+  } else if (query == 'metrics.cost_micros DESC') {
+    dynamicField = ['conversions', 'cost'];
+  } else {
+    dynamicField = ['conversions_value', 'cost', 'roas'];
+  }
   // Define the headers dynamically
-  const tableHeaders = [
-    'product_item_id',
-    'product_title',
-    ...uniqueDynamicFields,
-  ];
+  const tableHeaders = ['product_item_id', 'product_title', ...dynamicField];
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -102,7 +105,7 @@ const AiTable = ({ AiResponse }) => {
                       </div>
                     )
                   ) : product[field] !== undefined ? (
-                    product[field].toString()
+                    product[field]
                   ) : (
                     'N/A'
                   )}

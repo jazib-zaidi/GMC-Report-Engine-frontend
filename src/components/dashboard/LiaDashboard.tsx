@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import Button from '../ui/Button';
+import { Button } from '../ui/Button';
 import {
   ArrowLeft,
   TrendingUp,
@@ -52,7 +52,7 @@ const LiaDashboard = () => {
       maximumFractionDigits: 0,
     }).format(value);
   };
-  console.log(liaReportData);
+
   // Calculate ROAS (Return on Ad Spend)
   const calculateROAS = (value, cost) => {
     return (value / cost).toFixed(2);
@@ -110,7 +110,7 @@ const LiaDashboard = () => {
       cost: 0,
       conversions_value: 0,
     };
-    console.log(liaReportData.data);
+
     liaReportData.data.forEach((store) => {
       totals.clicks += store.clicks;
       totals.conversions += store.conversions;

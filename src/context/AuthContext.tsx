@@ -154,6 +154,7 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({
 
       setAdsAccounts(adsAccounts);
     } catch (error) {
+      toast.error('Your Access token is expired please sign in again');
       console.error('Error fetching ads accounts:', error);
     }
   };

@@ -1,6 +1,6 @@
 import React from 'react';
 import XmlToGoogleSheet from '../components/XmlToGoogleSheet';
-import Button from '../components/ui/Button';
+import { Button } from '../components/ui/Button';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 

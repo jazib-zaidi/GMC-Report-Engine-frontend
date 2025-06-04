@@ -1,7 +1,6 @@
 import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
 export const aggregateData = (data, groupByAttribute) => {
   if (groupByAttribute == 'offerId') {
-    console.log('data', data);
   }
 
   return data.reduce((acc, item) => {

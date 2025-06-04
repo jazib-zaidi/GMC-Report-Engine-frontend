@@ -8,7 +8,7 @@ export default function CustomLIAReportBuilder() {
   const [progress, setProgress] = useState(0);
 
   const { liaReportData, selectedAdsAccount } = useAuth();
-  console.log(selectedAdsAccount);
+
   const [reportName, setReportName] = useState(
     `FeedOps ${selectedAdsAccount?.name} - ${selectedAdsAccount?.customer_id} LIA Report`
   );

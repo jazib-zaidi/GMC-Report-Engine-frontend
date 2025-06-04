@@ -121,8 +121,6 @@ const OnlineDashboard = () => {
     `${selectedAttribute}`,
   ]);
 
-  console.log('new', topPerformingProducts);
-
   const renderProductTable = (products, nested) => (
     <table
       className={`${
@@ -153,7 +151,6 @@ const OnlineDashboard = () => {
       </thead>
       <tbody className={`${'bg-white divide-y divide-gray-200'}`}>
         {products.map((product, index) => {
-          console.log(product);
           return (
             <tr key={index} className='hover:bg-gray-50'>
               <td className='px-6 py-4 text-sm text-gray-500'>
@@ -302,7 +299,6 @@ const OnlineDashboard = () => {
     (channel) => channel.product_channel === 'ONLINE'
   )[0];
 
-  console.log(onlineProducts);
   return (
     <div>
       <div className='flex items-center justify-between mb-4'>

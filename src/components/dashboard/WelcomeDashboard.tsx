@@ -30,7 +30,7 @@ const WelcomeDashboard = () => {
                   className='inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium text-smflex items-center gap-2 bg-[#33a852] hover:bg-[#33a852] text-white transition-colors cursor-pointer'
                 >
                   <LineChart className='h-6 w-6 text-white mr-3' />
-                  LIA Report
+                  Performance Report
                 </button>
                 <button
                   onClick={() => setReportType('cohort')}
