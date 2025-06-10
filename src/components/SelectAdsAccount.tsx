@@ -15,12 +15,15 @@ const SelectAdsAccount = () => {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedAccount, setSelectedAccount] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const containerRef = useRef(null);
 
   useEffect(() => {
-    fetchAdsAccounts().finally(() => setLoading(false));
+    if (adsAccounts?.length == 0) {
+      setLoading(true);
+      fetchAdsAccounts().finally(() => setLoading(false));
+    }
   }, []);
 
   // Hide dropdown if clicked outside

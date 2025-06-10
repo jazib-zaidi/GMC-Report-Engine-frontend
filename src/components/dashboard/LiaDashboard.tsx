@@ -19,7 +19,7 @@ import PerformanceDashboardSkeleton from './PerformanceDashboardSkeleton';
 import { Link } from 'react-router-dom';
 import LiaMetrics from './LiaMetrics';
 import AiInsight from './AiInsight';
-
+import { mapableStore } from '@/utils/Mabable-store';
 const LiaDashboard = () => {
   const {
     liaReportData,
@@ -129,6 +129,7 @@ const LiaDashboard = () => {
     const saved = localStorage.getItem(reportKey);
     return saved ? JSON.parse(saved) : [];
   };
+  console.log(liaReportData);
 
   const handleExportReport = async () => {
     setExporting(true);
@@ -137,6 +138,7 @@ const LiaDashboard = () => {
       dashboardProf: exportMatrix,
       AiInsigth: getSavedChatFromReport(),
       adsAccount: selectedAdsAccount,
+      mapableStore,
     };
     const res = await exportLiaSheet(data);
     if (res.url) {
@@ -156,6 +158,7 @@ const LiaDashboard = () => {
           <ArrowLeft size={16} /> Go Back
         </Button>
         <Button
+          disabled={!hasData}
           onClick={handleExportReport}
           className='flex items-center gap-2 bg-[#33a852] hover:bg-[#33a852] text-white'
         >

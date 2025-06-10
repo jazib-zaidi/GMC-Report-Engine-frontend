@@ -92,7 +92,7 @@ const LiaMetrics = ({ setExportMatrix, matrices }) => {
       setExportMatrix({
         Total_Clicks: formatNumber(totals.clicks),
         ROAS: formatNumber(
-          Number(((totals.conversions_value / totals.cost) * 100).toFixed(2))
+          Number((totals.conversions_value / totals.cost).toFixed(2))
         ),
         Ad_Spend: formatCurrency(totals.cost),
         Revenue: formatCurrency(totals.conversions_value),
@@ -158,7 +158,7 @@ const LiaMetrics = ({ setExportMatrix, matrices }) => {
           <TrendingUp size={20} className='text-purple-500' />
         </div>
         <p className='text-3xl font-bold'>
-          {formatNumber(Math.floor(totalUnitSolid))}
+          {formatNumber(Math.ceil(totalUnitSolid))}
         </p>
       </div>
     </div>

@@ -1,10 +1,15 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import SelectAccount from '../SelectAccount';
 import { BarChart, LineChart } from 'lucide-react';
 import SelectAdsAccount from '../SelectAdsAccount';
+import { useAuth } from '@/context/AuthContext';
 
 const WelcomeDashboard = () => {
   const [reportType, setReportType] = useState(null);
+  const { fetchAdsAccounts } = useAuth();
+  useEffect(() => {
+    fetchAdsAccounts();
+  }, []);
   return (
     <div className='flex items-center justify-center relative'>
       <div className='max-w-xl w-full backdrop-blur-lg bg-white/70 rounded-2xl shadow-lg border border-white/20 relative'>
