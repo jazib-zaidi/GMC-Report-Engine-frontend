@@ -20,6 +20,7 @@ import { Link } from 'react-router-dom';
 import LiaMetrics from './LiaMetrics';
 import AiInsight from './AiInsight';
 import { mapableStore } from '@/utils/Mabable-store';
+import ExportModal from './LiaDashboard/ExportModal';
 const LiaDashboard = () => {
   const {
     liaReportData,
@@ -157,21 +158,15 @@ const LiaDashboard = () => {
         >
           <ArrowLeft size={16} /> Go Back
         </Button>
+
         <Button
           disabled={!hasData}
-          onClick={handleExportReport}
           className='flex items-center gap-2 bg-[#33a852] hover:bg-[#33a852] text-white'
         >
-          {exporting ? (
-            <>
-              <Loader className='animate-spin' size={16} /> Exporting Report..
-            </>
-          ) : (
-            <>
-              {' '}
-              <DownloadIcon size={16} /> Export Report
-            </>
-          )}
+          <ExportModal
+            exporting={exporting}
+            handleExportReport={handleExportReport}
+          />
         </Button>
       </div>
       <h1 className='text-2xl font-bold'>Performance</h1>
