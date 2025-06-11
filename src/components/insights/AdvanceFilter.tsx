@@ -123,17 +123,17 @@ const AdvanceFilter = ({ filterValue }) => {
       )}
 
       {selectedAttribute && (
-        <div className='absolute right-0 mt-2 w-64 bg-white border border-gray-300 rounded-md shadow-lg z-20 p-4'>
+        <div className='absolute right-0 mt-2 w-[27rem] bg-white border border-gray-300 rounded-md shadow-lg z-20 p-4'>
           <div className='mb-2 font-medium'>{selectedAttribute}</div>
           <div className='text-sm text-gray-500 mb-2'>
-            Enter value to filter:
+            Enter values to filter:
           </div>
 
-          <input
-            type='text'
+          <textarea
             value={searchValue}
+            rows={6}
             onChange={(e) => setSearchValue(e.target.value)}
-            placeholder='Equals to...'
+            placeholder='Enter one value per line'
             className='w-full border border-gray-300 rounded-md px-3 py-1 mb-3'
           />
           <div className='flex gap-2 '>

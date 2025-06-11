@@ -147,6 +147,21 @@ const ComparisonPeriod: React.FC = () => {
       setReportData(null);
     }
   };
+  console.log(filter?.searchValue?.split('\n'));
+  const renderFilterValue = () => {
+    const values = filter?.searchValue
+      ?.split('\n')
+      .map((v) => v.trim())
+      .filter((v) => v); // remove empty or whitespace-only values
+
+    if (!values || values.length === 0) return null;
+
+    if (values.length === 1) {
+      return values[0];
+    } else {
+      return `${values[0]}, +${values.length - 1} more`;
+    }
+  };
 
   return (
     <div className='relative inline-block text-sm text-gray-600 w-full flex items-center justify-between'>
@@ -197,7 +212,7 @@ const ComparisonPeriod: React.FC = () => {
               {filter?.selectedAttribute === 'offerId'
                 ? 'Product ID'
                 : filter?.selectedAttribute}{' '}
-              Equals to {filter?.searchValue}
+              contains {renderFilterValue()}
               <button
                 onClick={() => {
                   setReportData(null);
