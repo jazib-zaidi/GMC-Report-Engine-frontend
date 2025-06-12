@@ -41,8 +41,8 @@ export default function ProductTable({ product, isAi = false }) {
   const highlightKeywords = (text, focusKeyword, id = 233) => {
     const selected = expandedItems[id];
 
-    const keywords = focusKeyword.split(' ');
-    const escapedKeywords = keywords.map(escapeRegExp);
+    const keywords = focusKeyword?.split(' ');
+    const escapedKeywords = keywords?.map(escapeRegExp);
 
     // Combine keywords into a regex that matches any of the words (using OR operator '|')
     const regex = new RegExp(`(${escapedKeywords.join('|')})`, 'gi');

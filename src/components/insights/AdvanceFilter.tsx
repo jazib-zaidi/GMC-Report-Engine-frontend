@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import { ChevronDown } from 'lucide-react';
+import Select from '../ui/Select';
 
 const attributes = [
   {
@@ -58,14 +59,15 @@ const AdvanceFilter = ({ filterValue }) => {
   const [selectedAttribute, setSelectedAttribute] = useState(null);
   const [searchValue, setSearchValue] = useState('');
   const containerRef = useRef(null);
-
+  const [condition, setCondition] = useState('Include');
+  const conditionArr = ['Include', 'Exclude'];
   const notify = () => toast.error('Please enter a value to filter!');
   const handleApply = () => {
     if (searchValue.trim() === '') {
       notify();
       return;
     } else {
-      filterValue({ selectedAttribute, searchValue });
+      filterValue({ selectedAttribute, searchValue, mode: condition });
       setSelectedAttribute(null);
       setSearchValue('');
       setShowDropdown(false);
@@ -125,10 +127,19 @@ const AdvanceFilter = ({ filterValue }) => {
       {selectedAttribute && (
         <div className='absolute right-0 mt-2 w-[27rem] bg-white border border-gray-300 rounded-md shadow-lg z-20 p-4'>
           <div className='mb-2 font-medium'>{selectedAttribute}</div>
+
           <div className='text-sm text-gray-500 mb-2'>
             Enter values to filter:
           </div>
-
+          <Select
+            label='Condition'
+            value={condition}
+            onChange={(e) => setCondition(e.target.value)}
+          >
+            <option value='include'>Include</option>
+            <option value='exclude'>Exclude</option>
+          </Select>
+          <br />
           <textarea
             value={searchValue}
             rows={6}
