@@ -6,6 +6,7 @@ import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
 import { useAuth } from '../context/AuthContext';
 import AdvanceFilter from './insights/AdvanceFilter';
+import TrafficSelector from './insights/TrafficSelector';
 
 const ComparisonPeriod: React.FC = () => {
   const {
@@ -22,7 +23,7 @@ const ComparisonPeriod: React.FC = () => {
   const [showPreviousTypeDropdown, setShowPreviousTypeDropdown] =
     useState(false);
   const [previousType, setPreviousType] = useState<'year' | 'period'>('year');
-
+  const [traffic, setTraffic] = useState('');
   const [currentPeriod, setCurrentPeriod] = useState({
     startDate: new Date(),
     endDate: new Date(),
@@ -143,11 +144,11 @@ const ComparisonPeriod: React.FC = () => {
 
   const handleSearch = (data: any) => {
     if (data?.selectedAttribute) {
-      setFilter(data);
+      setFilter({ ...data, traffic: traffic });
       setReportData(null);
     }
   };
-  console.log(filter?.searchValue?.split('\n'));
+
   const renderFilterValue = () => {
     const values = filter?.searchValue
       ?.split('\n')
@@ -162,6 +163,12 @@ const ComparisonPeriod: React.FC = () => {
       return `${values[0]}, +${values.length - 1} more`;
     }
   };
+
+  useEffect(() => {
+    if (traffic) {
+      setFilter((prev) => ({ ...prev, traffic: traffic }));
+    }
+  }, [traffic]);
 
   return (
     <div className='relative inline-block text-sm text-gray-600 w-full flex items-center justify-between'>
@@ -204,7 +211,9 @@ const ComparisonPeriod: React.FC = () => {
           )}
         </span>
       </div>
+
       <div className='flex items-center justify-center'>
+        <TrafficSelector handleTrafic={setTraffic} traffic={traffic} />
         {filter?.searchValue && (
           <div className='flex items-center space-x-2 bg-white border border-gray-400 rounded-full mr-3 px-2'>
             <span className='text-sm space-x-2 px-2 py-2 rounded-md'>
@@ -216,7 +225,7 @@ const ComparisonPeriod: React.FC = () => {
               <button
                 onClick={() => {
                   setReportData(null);
-                  setFilter({});
+                  setFilter({ traffic: traffic });
                 }}
                 className='text-sm hover:underline ml-2'
               >
@@ -225,6 +234,7 @@ const ComparisonPeriod: React.FC = () => {
             </span>
           </div>
         )}
+
         <AdvanceFilter
           filterValue={(data: any) => {
             handleSearch(data);
