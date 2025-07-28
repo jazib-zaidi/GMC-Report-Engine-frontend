@@ -153,7 +153,7 @@ const ComparisonPeriod: React.FC = () => {
     const values = filter?.searchValue
       ?.split('\n')
       .map((v) => v.trim())
-      .filter((v) => v); // remove empty or whitespace-only values
+      .filter((v) => v);
 
     if (!values || values.length === 0) return null;
 
@@ -166,7 +166,10 @@ const ComparisonPeriod: React.FC = () => {
 
   useEffect(() => {
     if (traffic) {
-      setFilter((prev) => ({ ...prev, traffic: traffic }));
+      setFilter((prev) => ({
+        ...prev,
+        traffic: traffic,
+      }));
     }
   }, [traffic]);
 
@@ -213,6 +216,35 @@ const ComparisonPeriod: React.FC = () => {
       </div>
 
       <div className='flex items-center justify-center'>
+        <div className='flex items-center justify-center'>
+          <div className='flex items-center bg-white border border-gray-400 rounded-full mr-3 ml-2'>
+            <button
+              className={`px-3 py-1 text-sm rounded-l-full ${
+                filter?.withImpressions === true
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-white text-gray-700'
+              }`}
+              onClick={() =>
+                setFilter((prev) => ({ ...prev, withImpressions: true }))
+              }
+            >
+              0 Impressions
+            </button>
+            <button
+              className={`px-3 py-1 text-sm rounded-r-full ${
+                filter?.withImpressions !== true // default selected if undefined or false
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-white text-gray-700'
+              }`}
+              onClick={() =>
+                setFilter((prev) => ({ ...prev, withImpressions: false }))
+              }
+            >
+              All Products
+            </button>
+          </div>
+        </div>
+
         <TrafficSelector handleTrafic={setTraffic} traffic={traffic} />
         {filter?.searchValue && (
           <div className='flex items-center space-x-2 bg-white border border-gray-400 rounded-full mr-3 px-2'>
