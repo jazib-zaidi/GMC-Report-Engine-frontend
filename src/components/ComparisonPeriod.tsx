@@ -84,15 +84,16 @@ const ComparisonPeriod: React.FC = () => {
   ) => {
     if (type === 'year') {
       return {
-        startDate: subDays(range.startDate, 365),
-        endDate: subDays(range.endDate, 365),
+        startDate: subDays(range.startDate, 366),
+        endDate: subDays(range.endDate, 366),
         key: 'previous',
       };
     } else {
       const diff = range.endDate.getTime() - range.startDate.getTime();
+      const oneDay = 24 * 60 * 60 * 1000;
       return {
-        startDate: new Date(range.startDate.getTime() - diff - 1),
-        endDate: new Date(range.startDate.getTime() - 1),
+        startDate: new Date(range.startDate.getTime() - diff - oneDay - 1),
+        endDate: new Date(range.startDate.getTime() - oneDay - 1),
         key: 'previous',
       };
     }
