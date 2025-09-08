@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Loader, LogIn } from 'lucide-react';
-import { Button } from '../ui/button';
+import { Button } from '@/components/ui/button';
 import { useAuth } from '../../context/AuthContext';
 
 const GoogleLogin: React.FC = () => {

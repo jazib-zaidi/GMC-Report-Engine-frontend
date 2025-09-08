@@ -2,7 +2,7 @@ import { ArrowDown, Eraser, MoveDownRight, SendHorizontal } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import AiTable from '../../utils/AiTable';
-import { Button } from '../ui/button';
+import { Button } from '@/components/ui/button';
 import { AIInsigthQuestions } from './AIInsigthQuestions';
 
 const AiInsight = () => {
