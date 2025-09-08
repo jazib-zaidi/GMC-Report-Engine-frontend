@@ -5,8 +5,8 @@ import {
   CardDescription,
   CardContent,
   CardFooter,
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+} from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
 import { Tag } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
