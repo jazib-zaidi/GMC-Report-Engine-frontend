@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button'; // ✅ lowercase `button` (check your file name)
+import { Button } from '@/components/ui/Button'; // ✅ lowercase `button` (check your file name)
 import FeedValidationTool from './AuditFeed/FeedValidationTool';
 import axios from 'axios';
 import { useAuth } from '@/context/AuthContext';
