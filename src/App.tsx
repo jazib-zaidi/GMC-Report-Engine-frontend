@@ -11,12 +11,13 @@ import Layout from './components/layout/Layout';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import InsightsPage from './pages/InsightsPage';
-import CustomReportBuilder from './pages/CustomReportBuilderPage';
 import FocusKeywordAI from './pages/FocusKeywordAI';
 import XmlConverter from './pages/XmlConverter';
 import OnlineDashboard from './components/dashboard/OnlineDashboard';
 import LocalDashboard from './components/dashboard/LocalDashboard';
 import StoreDetails from './components/dashboard/StoreDetails';
+import Playbook from './components/playbook/playbook';
+import AuditFeed from './components/playbook/container/AuditFeed';
 
 function App() {
   return (
@@ -31,12 +32,11 @@ function App() {
             <Route path='LOCAL' element={<LocalDashboard />} />
             <Route path='/LOCAL/:storeId' element={<StoreDetails />} />
             <Route path='xml-converter' element={<XmlConverter />} />
-            {/* <Route path='reports' element={<CustomReportBuilder />} /> */}
             <Route path='insights/:insightType' element={<InsightsPage />} />
             <Route path='focus-keyword-ai' element={<FocusKeywordAI />} />
+            <Route path='playbook' element={<Playbook />} />
+            <Route path='audit-feed' element={<AuditFeed />} />
           </Route>
-
-          {/* <Route path="*" element={<Navigate to="/dashboard" replace />} /> */}
         </Routes>
       </Router>
     </AuthProvider>

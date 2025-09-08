@@ -85,7 +85,7 @@ const AIOptimizationScreen = () => {
     }
   };
   // return <AIOptimization />;
-  console.log(uploadedData);
+
   return uploadedData?.message !== 'File Uploaded' ? (
     <ExcelImportScreen setUploadedData={setUploadedData} />
   ) : (

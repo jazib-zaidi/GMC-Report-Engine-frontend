@@ -61,7 +61,7 @@ const TimePeriod: React.FC = () => {
       </div>
 
       {showPicker && (
-        <div className='absolute z-50 mt-56 bg-white p-4 border rounded shadow-lg'>
+        <div className='absolute z-50 mt-10 bg-white p-4 border rounded shadow-lg'>
           <DateRangePicker
             onChange={handleSelect}
             showSelectionPreview

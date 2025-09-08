@@ -31,6 +31,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, sidebarOpen }) => {
     fetchGoogleProductCategory,
     previousDateRange,
     selectedAdsAccount,
+    startFetching,
   } = useAuth();
 
   useEffect(() => {
@@ -58,7 +59,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, sidebarOpen }) => {
         }
       );
     }
-  }, [merchantSelect, selectedDateRange, filter, previousDateRange]);
+  }, [startFetching]);
 
   return (
     <header className='sticky top-0 z-[8] bg-black border-b border-gray-200 shadow-sm'>

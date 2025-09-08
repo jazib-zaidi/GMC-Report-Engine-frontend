@@ -22,9 +22,7 @@ const StoreDetails = () => {
     setLiaStoreData,
   } = useAuth();
   const decodedId = atob(storeId);
-  console.log(decodedId);
-  console.log(selectedAdsAccount);
-  console.log(selectedAttribute);
+
   useEffect(() => {
     fetchLiaStoreData(
       selectedAdsAccount?.customer_id,
@@ -82,7 +80,7 @@ const StoreDetails = () => {
       return acc;
     }, {});
   }
-  console.log('new', topPerformingProducts);
+
   function groupByAttribute(products = [], attributeKey, topNProducts = 50) {
     const groups = {};
 
@@ -138,12 +136,9 @@ const StoreDetails = () => {
     `${selectedAttribute}`,
   ]);
 
-  console.log('test', productattributeData);
-
   const matrices = liaReportData?.formattedStoreQueryData.filter(
     (item) => item.store_id === decodedId
   )[0]; // only include entries with a store_id
-  console.log('matrices', matrices);
 
   const renderProductTable = (products, nested) => (
     <table

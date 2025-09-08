@@ -95,7 +95,11 @@ const AdvanceFilter = ({ filterValue }) => {
   }, []);
 
   return (
-    <div ref={containerRef} className='relative inline-block text-left'>
+    <div
+      ref={containerRef}
+      className='relative inline-block text-left w-[300px]'
+    >
+      <span className='mr-2'>Filter</span>
       <button
         onClick={() => {
           setShowDropdown(!showDropdown);
@@ -105,7 +109,6 @@ const AdvanceFilter = ({ filterValue }) => {
       >
         Filter <ChevronDown size={16} className='inline' />
       </button>
-
       {showDropdown && !selectedAttribute && (
         <div className='absolute right-0 mt-2 w-64 bg-white border border-gray-300 rounded-md shadow-lg z-10'>
           <div className='max-h-72 overflow-y-auto'>
@@ -123,7 +126,6 @@ const AdvanceFilter = ({ filterValue }) => {
           </div>
         </div>
       )}
-
       {selectedAttribute && (
         <div className='absolute right-0 mt-2 w-[27rem] bg-white border border-gray-300 rounded-md shadow-lg z-20 p-4'>
           <div className='mb-2 font-medium'>{selectedAttribute}</div>

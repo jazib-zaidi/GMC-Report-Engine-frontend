@@ -17,13 +17,15 @@ const ComparisonPeriod: React.FC = () => {
     selectedDateRange,
     setPreviousDateRange,
     reportData,
+    traffic,
+    setTraffic,
   } = useAuth();
 
   const [showPicker, setShowPicker] = useState(false);
   const [showPreviousTypeDropdown, setShowPreviousTypeDropdown] =
     useState(false);
   const [previousType, setPreviousType] = useState<'year' | 'period'>('year');
-  const [traffic, setTraffic] = useState('');
+
   const [currentPeriod, setCurrentPeriod] = useState({
     startDate: new Date(),
     endDate: new Date(),
@@ -100,7 +102,6 @@ const ComparisonPeriod: React.FC = () => {
   };
 
   const applyDates = () => {
-    setReportData(null);
     setFilter({});
     const formattedCurrentStart = format(tempRange.startDate, 'yyyy-MM-dd');
     const formattedCurrentEnd = format(tempRange.endDate, 'yyyy-MM-dd');
@@ -127,7 +128,6 @@ const ComparisonPeriod: React.FC = () => {
   };
 
   const handlePreviousTypeChange = (type: 'year' | 'period') => {
-    setReportData(null);
     setPreviousType(type);
     localStorage.setItem('previousType', type);
 
@@ -146,7 +146,6 @@ const ComparisonPeriod: React.FC = () => {
   const handleSearch = (data: any) => {
     if (data?.selectedAttribute) {
       setFilter({ ...data, traffic: traffic });
-      setReportData(null);
     }
   };
 
@@ -175,7 +174,7 @@ const ComparisonPeriod: React.FC = () => {
   }, [traffic]);
 
   return (
-    <div className='relative inline-block text-sm text-gray-600 w-full flex items-center justify-between'>
+    <div className='relative inline-block text-sm text-gray-600 w-full flex flex-col gap-3 '>
       <div className='inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-200 rounded-lg shadow-sm '>
         <CalendarRange size={16} className='text-gray-400' />
         <span>Comparing periods:</span>
@@ -216,7 +215,7 @@ const ComparisonPeriod: React.FC = () => {
         </span>
       </div>
 
-      <div className='flex items-center justify-center'>
+      <div className='flex  justify-center flex-col gap-3'>
         <TrafficSelector handleTrafic={setTraffic} traffic={traffic} />
         {filter?.searchValue && (
           <div className='flex items-center space-x-2 bg-white border border-gray-400 rounded-full mr-3 px-2'>
@@ -246,7 +245,7 @@ const ComparisonPeriod: React.FC = () => {
         />
       </div>
       {showPicker && (
-        <div className='absolute z-50 mt-56 bg-white p-4 border rounded shadow-lg'>
+        <div className='absolute z-50 mt-10 bg-white p-4 border rounded shadow-lg'>
           <DateRangePicker
             onChange={handleSelect}
             showSelectionPreview

@@ -130,7 +130,6 @@ const LiaDashboard = () => {
     const saved = localStorage.getItem(reportKey);
     return saved ? JSON.parse(saved) : [];
   };
-  console.log(liaReportData);
 
   const handleExportReport = async () => {
     setExporting(true);

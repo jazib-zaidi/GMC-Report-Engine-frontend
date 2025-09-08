@@ -24,6 +24,7 @@ import PerformanceDashboardSkeleton from '../components/dashboard/PerformanceDas
 import CustomReportBuilder from '../components/dashboard/CustomReportBuilder';
 import LiaDashboard from '../components/dashboard/LiaDashboard';
 import LiaDashboardSecond from '../components/dashboard/LiaDashboardSecond';
+import FilterModal from '@/components/dashboard/FilterModal';
 type MonthlyData = { name: string; impressions: number };
 type ChartDataPoint = { name: string; current: number; previous: number };
 const DashboardPage: React.FC = () => {
@@ -32,7 +33,13 @@ const DashboardPage: React.FC = () => {
     trafficSource: 'organic',
   });
 
-  const { reportData, merchantSelect, selectedAdsAccount } = useAuth();
+  const {
+    reportData,
+    merchantSelect,
+    selectedAdsAccount,
+    showFilterModal,
+    traffic,
+  } = useAuth();
 
   function generateImpressionsChartData(
     current: MonthlyData[],
@@ -145,17 +152,26 @@ const DashboardPage: React.FC = () => {
     return <LiaDashboard />;
   }
 
+  if (showFilterModal) {
+    return <FilterModal openByDefault />;
+  }
+
   return (
     <div className='space-y-6 animate-fade-in'>
-      <div>
-        <h1 className='text-2xl font-bold text-gray-900 mb-3'>
-          Cohort analysis
-        </h1>
-        <p className='mb-4'>
-          Compares performance of items that had impressions during the same
-          period.
-        </p>
-        <ComparisonPeriod />
+      <div className='flex items-center justify-between mb-4'>
+        <div className=''>
+          <h1 className='text-2xl font-bold text-gray-900 mb-3'>
+            Cohort analysis
+          </h1>
+          <p className='mb-4'>
+            Compares performance of items that had impressions during the same
+            period.
+          </p>
+        </div>
+        <div className='gap-2 flex items-center'>
+          {traffic && <span className='text-gray-500'>Traffic: {traffic}</span>}
+          <FilterModal />
+        </div>
       </div>
 
       {!reportData ? (

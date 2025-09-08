@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { Loader, Loader2Icon } from 'lucide-react';
 import Loading from './loader';
 import toast from 'react-hot-toast';
-import { format } from 'date-fns';
+import { format, set } from 'date-fns';
 
 const SelectAccount = () => {
   const {
@@ -17,6 +17,7 @@ const SelectAccount = () => {
     fetchGoogleProductCategory,
     setSelectedDateRange,
     setFilter,
+    setShowFilterModal,
   } = useAuth();
 
   return merchantAccounts && merchantAccounts.length > 0 ? (
@@ -31,40 +32,8 @@ const SelectAccount = () => {
               id: selectedMerchant.merchantId,
               name: selectedMerchant.name,
             });
+            setShowFilterModal(true);
             setFilter({});
-            let date = {
-              endDate: new Date(),
-              startDate: new Date(
-                new Date().setDate(new Date().getDate() - 30)
-              ),
-            };
-
-            const formattedCurrentStart = format(date.startDate, 'yyyy-MM-dd');
-            const formattedCurrentEnd = format(date.endDate, 'yyyy-MM-dd');
-
-            let selectedRange = {
-              startDate: formattedCurrentStart,
-              endDate: formattedCurrentEnd,
-            };
-
-            setSelectedDateRange(selectedRange);
-
-            toast.promise(
-              fetchGoogleProductCategory(selectedMerchant.merchantId),
-              {
-                loading: (
-                  <b> Fetching Google Product Category, please wait...</b>
-                ),
-                success: <b>Google Product Category successfully loaded!</b>,
-                error: (
-                  <b>
-                    Failed to load Google Product Category. Please try
-                    refreshing the page. or Login again
-                  </b>
-                ),
-              }
-            );
-            localStorage.setItem('previousType', 'year');
             setReportData(null);
           }
         }}

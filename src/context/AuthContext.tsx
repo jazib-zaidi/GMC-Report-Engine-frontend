@@ -77,10 +77,14 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({
   const [merchantSelect, setMerchantSelect] = useState<MerchantSelect | null>(
     null
   );
+  const [traffic, setTraffic] = useState('');
   const [filter, setFilter] = useState({});
+  const [auditFeedData, setAuditFeedData] = useState<Function | null>(null);
   const [exportData, setExportData] = useState<
     Record<string, { headers: string[]; data: any[] }>
   >({});
+  const [showFilterModal, setShowFilterModal] = useState(true);
+  const [startFetching, setStartFetching] = useState(false);
   const [token, setToken] = useState('');
   useEffect(() => {
     const savedUser = getUser();
@@ -138,6 +142,20 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({
       console.error('Error fetching merchant accounts:', error);
     }
   };
+
+  const auditFeed = async (feedUrl, fetchAll = false) => {
+    const url = `${import.meta.env.VITE_API_URL}/api/audit-feed${authToken()}`;
+    try {
+      const response = await axios.post(url, {
+        url: feedUrl,
+        fetchAll: fetchAll,
+      });
+      setAuditFeedData(response.data);
+    } catch (error) {
+      console.error('Error auditing feed:', error);
+    }
+  };
+
   const fetchAdsAccounts = async () => {
     const url = `${
       import.meta.env.VITE_API_URL
@@ -407,6 +425,14 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({
         aiInsigthResponse,
         setLiaStoreData,
         exportLiaSheet,
+        auditFeed,
+        auditFeedData,
+        setShowFilterModal,
+        showFilterModal,
+        startFetching,
+        setStartFetching,
+        setTraffic,
+        traffic,
       }}
     >
       {children}

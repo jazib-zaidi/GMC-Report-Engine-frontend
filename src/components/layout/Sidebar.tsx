@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '../../utils/cn';
-import { ChevronDown, ChevronUp, SheetIcon } from 'lucide-react';
+import { ChevronDown, ChevronUp, SheetIcon, Sparkles } from 'lucide-react';
 
 import {
   BarChart2,
@@ -48,6 +48,12 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [expanded, setExpanded] = useState<string | null>(null);
   const [subExpanded, setSubExpanded] = useState<string | null>(null);
   let sidebarItems: SidebarItem[] = [
+    {
+      id: 'Playbook',
+      label: 'Playbook',
+      icon: Sparkles,
+      path: '/playbook',
+    },
     {
       id: 'dashboard',
       label: 'Reports',
@@ -153,6 +159,12 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   if (!merchantSelect) {
     sidebarItems = [
+      {
+        id: 'Playbook',
+        label: 'Playbook',
+        icon: Sparkles,
+        path: '/playbook',
+      },
       {
         id: 'dashboard',
         label: 'Reports',
