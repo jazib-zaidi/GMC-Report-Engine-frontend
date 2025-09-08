@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import GoBack from '../GoBack';
 import { useAuth } from '../../context/AuthContext';
-import { Card } from '../ui/Card';
+import { Card } from '../ui/card';
 import Select from '../ui/Select';
 import LiaMetrics from './LiaMetrics';
 import { ChevronDown } from 'lucide-react';

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { Button } from '../components/ui/Button';
+import { Button } from '../components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Circle,

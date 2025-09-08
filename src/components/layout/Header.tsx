@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Menu, LogOut, User as UserIcon, Bell } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { Button } from '../ui/Button';
+import { Button } from '../ui/button';
 import Select from '../ui/Select';
 import SelectAccount from '../SelectAccount';
 import { is } from 'date-fns/locale';

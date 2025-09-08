@@ -7,7 +7,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui/button';
 import ComparisonPeriod from '../ComparisonPeriod';
 import { useAuth } from '@/context/AuthContext';
 import { format } from 'date-fns';

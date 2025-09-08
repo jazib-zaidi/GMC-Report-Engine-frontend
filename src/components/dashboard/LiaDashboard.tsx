@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { Button } from '../ui/Button';
+import { Button } from '../ui/button';
 import {
   ArrowLeft,
   TrendingUp,

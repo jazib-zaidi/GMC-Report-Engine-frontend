@@ -5,7 +5,7 @@ import {
   CardHeader,
   CardTitle,
   CardContent,
-} from '../components/ui/Card';
+} from '../components/ui/card';
 import MetricCard from '../components/dashboard/MetricCard';
 import FilterControls from '../components/dashboard/FilterControls';
 import ImpressionsChart from '../components/dashboard/ImpressionsChart';
