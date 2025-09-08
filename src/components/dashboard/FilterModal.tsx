@@ -97,6 +97,7 @@ const FilterModal: React.FC<FilterModalProps> = ({ openByDefault = false }) => {
     setOpen(false);
     setStartFetching(!startFetching);
     setShowFilterModal(false);
+    setReportData;
   };
 
   return (
