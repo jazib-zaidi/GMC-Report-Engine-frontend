@@ -31,54 +31,22 @@ const AuditFeed = () => {
 
   const handleSubmit = async () => {
     setLoading(true);
-    setShowOnMount(false);
     await auditFeed(feedUrl);
     setLoading(false);
-    await auditFeed(feedUrl, true);
   };
 
-  const feedValidationModal = () => {
-    return (
-      <Dialog open={showOnMount} onOpenChange={setShowOnMount}>
-        <DialogContent className='sm:max-w-lg'>
-          <DialogHeader>
-            <DialogTitle>Audit Feed</DialogTitle>
-            <DialogDescription>
-              Paste your product feed URL to run automated validations and
-              detect missing attributes, formatting issues, and optimization
-              gaps.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className='py-4 space-y-3'>
-            <Label htmlFor='feedUrl'>Enter Feed URL</Label>
-            <Input
-              id='feedUrl'
-              type='text'
-              placeholder='https://example.com/feed.xml'
-              value={feedUrl}
-              onChange={(e) => setFeedUrl(e.target.value)}
-            />
-          </div>
-
-          <DialogFooter>
-            <Button className=' w-full' onClick={handleSubmit}>
-              Submit
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    );
-  };
+  useEffect(() => {
+    handleSubmit();
+  }, []);
 
   return (
     <div className='container mx-auto px-4'>
       <GoBack />
-      {feedValidationModal()}
+
       {loading ? (
         <PerformanceDashboardSkeleton />
       ) : (
-        <FeedValidationTool domain={domain} />
+        <FeedValidationTool domain={'domain'} />
       )}
     </div>
   );

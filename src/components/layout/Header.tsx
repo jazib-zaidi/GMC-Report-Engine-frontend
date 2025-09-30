@@ -58,6 +58,16 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, sidebarOpen }) => {
           ),
         }
       );
+      toast.promise(fetchGoogleProductCategory(merchantSelect.id), {
+        loading: <b> Fetching Google Product Category, please wait...</b>,
+        success: <b>Google Product Category successfully loaded!</b>,
+        error: (
+          <b>
+            Failed to load Google Product Category. Please try refreshing the
+            page. or Login again
+          </b>
+        ),
+      });
     }
   }, [startFetching]);
 

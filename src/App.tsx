@@ -18,6 +18,9 @@ import LocalDashboard from './components/dashboard/LocalDashboard';
 import StoreDetails from './components/dashboard/StoreDetails';
 import Playbook from './components/playbook/playbook';
 import AuditFeed from './components/playbook/container/AuditFeed';
+import DataBridge from './pages/DataBridge';
+import FeedAudit from './components/playbook/feed_audit/container';
+import FeedAuditProducts from './components/playbook/feed_audit/FeedAuditProducts';
 
 function App() {
   return (
@@ -35,7 +38,13 @@ function App() {
             <Route path='insights/:insightType' element={<InsightsPage />} />
             <Route path='focus-keyword-ai' element={<FocusKeywordAI />} />
             <Route path='playbook' element={<Playbook />} />
-            <Route path='audit-feed' element={<AuditFeed />} />
+            <Route path='playbook/audit-feed' element={<AuditFeed />} />
+            <Route path='playbook/feed-audit' element={<FeedAudit />} />
+            <Route
+              path='playbook/feed-audit/products'
+              element={<FeedAuditProducts />}
+            />
+            <Route path='playbook/data-bridge' element={<DataBridge />} />
           </Route>
         </Routes>
       </Router>

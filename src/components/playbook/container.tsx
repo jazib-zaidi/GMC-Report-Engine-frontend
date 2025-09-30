@@ -3,7 +3,7 @@ const playbookItem = [
     id: 1,
     title: 'Audit Shopping Feed',
 
-    url: '/audit-feed',
+    url: '/playbook/feed-audit',
     description:
       'Feed Validations automatically review your product data to ensure it meets Google and channel requirements. Checks include title and description length, missing or incomplete attributes, formatting errors, and invalid URLs. By catching these issues early, you can prevent disapprovals.',
     buttonText: 'Audit Feed',
@@ -21,7 +21,7 @@ const playbookItem = [
     id: 3,
     title: 'View Product Data with DataBridge',
 
-    url: 'https://product-data-viewer.vercel.app/',
+    url: '/playbook/data-bridge',
     description:
       'DataBridge is a standalone tool that allows you to view product data directly from your data sources. It also helps you map relevant attributes for seamless integration. The tool supports major platforms including Shopify, Magento, BigCommerce, and Salesforce. ',
     buttonText: 'View DataBridge',

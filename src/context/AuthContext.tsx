@@ -80,6 +80,7 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({
   const [traffic, setTraffic] = useState('');
   const [filter, setFilter] = useState({});
   const [auditFeedData, setAuditFeedData] = useState<Function | null>(null);
+  const [allProducts, setAllProducts] = useState([]);
   const [exportData, setExportData] = useState<
     Record<string, { headers: string[]; data: any[] }>
   >({});
@@ -146,11 +147,12 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({
   const auditFeed = async (feedUrl, fetchAll = false) => {
     const url = `${import.meta.env.VITE_API_URL}/api/audit-feed${authToken()}`;
     try {
-      const response = await axios.post(url, {
-        url: feedUrl,
-        fetchAll: fetchAll,
+      const response = await axios.get(url, {
+        withCredentials: true,
       });
+      console.log(response.data);
       setAuditFeedData(response.data);
+      setAllProducts(response.data.items);
     } catch (error) {
       console.error('Error auditing feed:', error);
     }
@@ -433,6 +435,9 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({
         setStartFetching,
         setTraffic,
         traffic,
+        allProducts,
+        setAllProducts,
+        setAuditFeedData,
       }}
     >
       {children}
