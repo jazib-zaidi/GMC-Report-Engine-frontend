@@ -29,7 +29,7 @@ function App() {
         <Routes>
           <Route path='/login' element={<LoginPage />} />
           <Route path='/' element={<Layout />}>
-            <Route index element={<Navigate to='/dashboard' replace />} />
+            <Route index element={<Navigate to='/playbook' replace />} />
             <Route path='dashboard' element={<DashboardPage />} />
             <Route path='Online' element={<OnlineDashboard />} />
             <Route path='LOCAL' element={<LocalDashboard />} />
