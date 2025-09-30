@@ -7,7 +7,7 @@ const DataBridge = () => {
     <div className='w-full h-screen test'>
       <iframe
         className='w-full h-full'
-        src='https://product-data-viewer.vercel.app/'
+        src='https://product-data-bridge.vercel.app/'
         frameBorder='0'
       ></iframe>
     </div>
