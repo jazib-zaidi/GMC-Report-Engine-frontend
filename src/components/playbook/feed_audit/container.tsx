@@ -354,11 +354,6 @@ const FeedAudit = () => {
                     >
                       <span className='text-[13px] text-gray-900 flex items-center justify-center gap-1'>
                         {s.destination}{' '}
-                        {s.approvalRate === '100.00%' ? (
-                          <CheckCircle color='green' size={14} />
-                        ) : (
-                          <MessageCircleWarning color='red' size={14} />
-                        )}
                       </span>
                       <span className={`text-xl font-semibold text-gray-700 `}>
                         {s.approvalRate}
