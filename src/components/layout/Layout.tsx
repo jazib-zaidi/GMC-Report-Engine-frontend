@@ -7,7 +7,8 @@ import { useSearchParams } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 const Layout: React.FC = () => {
   const { user, merchantSelect, logout, setToken } = useAuth();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  // const [sidebarOpen, setSidebarOpen] = useState(true);
+  const { sidebarOpen, setSidebarOpen } = useAuth();
   const [searchParams] = useSearchParams();
   const Oauth = searchParams.get('Oauth');
 

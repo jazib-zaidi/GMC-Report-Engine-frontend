@@ -21,6 +21,7 @@ import AuditFeed from './components/playbook/container/AuditFeed';
 import DataBridge from './pages/DataBridge';
 import FeedAudit from './components/playbook/feed_audit/container';
 import FeedAuditProducts from './components/playbook/feed_audit/FeedAuditProducts';
+import SelectMerchantAccount from './components/SelectMerchantAccount';
 
 function App() {
   return (
@@ -45,6 +46,10 @@ function App() {
               element={<FeedAuditProducts />}
             />
             <Route path='playbook/data-bridge' element={<DataBridge />} />
+            <Route
+              path='select-merchant-account'
+              element={<SelectMerchantAccount />}
+            />
           </Route>
         </Routes>
       </Router>

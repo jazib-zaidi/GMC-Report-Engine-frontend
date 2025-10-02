@@ -6,34 +6,54 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { CheckCircle, Info, TrendingUp, Sprout } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import {
+  CheckCircle,
+  Info,
+  MessageCircleWarning,
+  AlertTriangle,
+  XCircle,
+} from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
 import { PillarDetailTable } from './PillarDetailTable';
 import { useAuth } from '@/context/AuthContext';
 import PerformanceDashboardSkeleton from '@/components/dashboard/PerformanceDashboardSkeleton';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
+import GoBack from '@/components/GoBack';
 
 const FeedAudit = () => {
-  const { auditFeed, auditFeedData } = useAuth();
+  const { auditFeed, auditFeedData, merchantSelect, setSidebarOpen } =
+    useAuth();
   const [selectedPillar, setSelectedPillar] = useState<string | null>(null);
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, []);
+
   const [loading, setLoading] = useState(true);
-  const handleSubmit = async () => {
+  const prevMerchantId = useRef<string | null>(null);
+
+  const handleSubmit = async (merchantId: string) => {
     setLoading(true);
-    await auditFeed();
+    await auditFeed(merchantId);
     setLoading(false);
   };
+
+  const { state } = useLocation();
+  const [searchParams] = useSearchParams();
+  const skipFetch = searchParams.get('skipFetch') === 'true';
+
+  useEffect(() => {
+    if (!skipFetch && merchantSelect?.merchantId) {
+      handleSubmit(merchantSelect.merchantId);
+    } else {
+      setLoading(false);
+    }
+  }, [merchantSelect, skipFetch]);
+
   function formatNumber(value) {
     if (typeof value !== 'number') value = Number(value);
     return new Intl.NumberFormat('en-US').format(value);
   }
-  useEffect(() => {
-    if (auditFeedData?.productMetrics.length > 0) {
-      setLoading(false);
-    } else {
-      handleSubmit();
-    }
-  }, []);
-  console.log('auditFeedData', auditFeedData);
+
   if (loading) {
     return <PerformanceDashboardSkeleton />;
   }
@@ -63,8 +83,12 @@ const FeedAudit = () => {
   }
 
   const getProductMetricsApproval = (source) => {
-    const filtered = itemStatus.filter((pA) =>
-      source.some((mB) => extractOfferId(pA.productId) === mB.segments.offerId)
+    const filtered = itemStatus?.filter((pA) =>
+      source.some(
+        (mB) =>
+          extractOfferId(pA.productId)?.toLowerCase() ===
+          mB.segments.offerId?.toLowerCase()
+      )
     );
 
     return filtered;
@@ -96,7 +120,7 @@ const FeedAudit = () => {
 
     return { shoppingPct, freeListingPct, displayAdsPct };
   };
-
+  console.log('productWithImpressions', productWithImpressions);
   const impresionApproval = renderApprovalObject(
     getProductMetricsApproval(productWithImpressions)
   );
@@ -138,8 +162,8 @@ const FeedAudit = () => {
     2
   );
 
-  console.log(`Shopping Ads(SA): ${shoppingPct}%`);
-  console.log(`Free Listings(FL): ${freeListingPct}%`);
+  console.log(`Shopping Ads: ${shoppingPct}%`);
+  console.log(`Free Listings: ${freeListingPct}%`);
   console.log(`Display Ads: ${remarketingPct}%`);
 
   const accountLevelChecks = [
@@ -182,24 +206,96 @@ const FeedAudit = () => {
 
   const card = (title, approval, rank, approvalObj) => {
     return (
-      <Card className='p-6  border-t-4 border-gray-200 flex flex-col gap-2 transition-all hover:shadow-lg'>
-        <CardTitle className='flex items-center gap-3 mb-2  text-foreground'>
+      <Card className='p-6  border-t-4 border-gray-200 flex flex-col gap-2 transition-all hover:shadow-lg rounded-lg bg-card text-card-foreground group relative overflow-hidden border-0 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1 animate-slide-up'>
+        <CardTitle className='text-sm font-medium text-muted-foreground '>
           {title}
         </CardTitle>
-        <h1 className='font-bold text-3xl text-foreground mb-1'>{approval}</h1>
-        <h1 className='text-foreground text-sm font-medium text-foreground'>
+        <span className='flex items-center gap-2 font-semibold text-foreground mt-3'>
+          <h1 className='font-bold text-3xl text-foreground mb-1'>
+            {formatNumber(approval)}{' '}
+          </h1>
+          <span className='text-sm text-blue-600 flex items-center'>
+            {(
+              (Number(approval) / auditFeedData?.productMetrics.length) *
+              100
+            ).toFixed(2)}
+            %
+          </span>
+        </span>
+        <span className=' inline-flex w-[57%] items-center border text-xs font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-full px-3 py-1'>
           FeedRank {rank}
-        </h1>
+        </span>
         <h1 className='text-foreground text-sm font-medium text-foreground'>
-          Approval
-          <ul className='list-disc pl-5 space-y-1 text-sm text-gray-700 text-[12px]'>
-            <li className=''>Shopping Ads(SA):{approvalObj?.shoppingPct}%</li>
-            <li>Free Listings(FL):{approvalObj?.freeListingPct}%</li>
-            <li>Display Ads(DA):{approvalObj?.displayAdsPct}%</li>
-          </ul>
+          <span className='text-sm text-gray-500 flex font-normal items-center my-3'>
+            Approval Rates
+          </span>
+          <div className='flex justify-between w-full text-[12px] font-normal text-gray-600'>
+            <div className=''>Shopping Ads:</div>
+            <div
+              className={`flex items-center gap-1 ${
+                approvalObj?.shoppingPct >= 95
+                  ? 'text-green-500'
+                  : approvalObj?.shoppingPct >= 50
+                  ? 'text-yellow-500'
+                  : 'text-red-500'
+              }`}
+            >
+              {approvalObj?.shoppingPct >= 95 ? (
+                <CheckCircle size={13} />
+              ) : approvalObj?.shoppingPct >= 50 ? (
+                <AlertTriangle size={13} />
+              ) : (
+                <XCircle size={13} />
+              )}
+              <span>{approvalObj?.shoppingPct}%</span>
+            </div>
+          </div>
+
+          <div className='flex justify-between w-full text-[12px] font-normal text-gray-600'>
+            <div className=''>Free Listings:</div>
+            <div
+              className={`flex items-center gap-1 ${
+                approvalObj?.freeListingPct >= 95
+                  ? 'text-green-500'
+                  : approvalObj?.freeListingPct >= 50
+                  ? 'text-yellow-500'
+                  : 'text-red-500'
+              }`}
+            >
+              {approvalObj?.freeListingPct >= 95 ? (
+                <CheckCircle size={13} />
+              ) : approvalObj?.freeListingPct >= 50 ? (
+                <AlertTriangle size={13} />
+              ) : (
+                <XCircle size={13} />
+              )}
+              <span>{approvalObj?.freeListingPct}%</span>
+            </div>
+          </div>
+          <div className='flex justify-between w-full text-[12px] font-normal text-gray-600'>
+            <div className=''>Display Ads:</div>
+            <div
+              className={`flex items-center gap-1 ${
+                approvalObj?.displayAdsPct >= 95
+                  ? 'text-green-500'
+                  : approvalObj?.displayAdsPct >= 50
+                  ? 'text-yellow-500'
+                  : 'text-red-500'
+              }`}
+            >
+              {approvalObj?.displayAdsPct >= 95 ? (
+                <CheckCircle size={13} />
+              ) : approvalObj?.displayAdsPct >= 50 ? (
+                <AlertTriangle size={13} />
+              ) : (
+                <XCircle size={13} />
+              )}
+              <span>{approvalObj?.displayAdsPct}%</span>
+            </div>
+          </div>
         </h1>
         <Button className='w-full mt-2' variant='outline'>
-          <Link to={`products?status=-&methord=-&matrix=true&for=${title}`}>
+          <Link to={`products?status=all&methord=all&matrix=true&for=${title}`}>
             View Products
           </Link>
         </Button>
@@ -211,12 +307,12 @@ const FeedAudit = () => {
   console.log(`Free Listings: ${freeListingPct}%`);
   console.log(`DisplayAds: ${remarketingPct}%`);
   const summaries = [
-    { destination: 'Shopping Ads(SA)', approvalRate: `${shoppingPct}%` },
-    { destination: 'Free Listings(FL)', approvalRate: `${freeListingPct}%` },
-    { destination: 'Display Ads(DA)', approvalRate: `${remarketingPct}%` },
+    { destination: 'Shopping Ads', approvalRate: `${shoppingPct}%` },
+    { destination: 'Free Listings', approvalRate: `${freeListingPct}%` },
+    { destination: 'Display Ads', approvalRate: `${remarketingPct}%` },
   ];
 
-  const rankCard = (title, value, Icon, variant, isProduct = false) => {
+  const rankCard = (title, value, iconUrl, variant, isProduct = false) => {
     const variantStyles = {
       primary: 'bg-blue-100 text-blue-500',
       success: 'bg-green-100 text-green-500',
@@ -224,56 +320,65 @@ const FeedAudit = () => {
     };
     return (
       <Card
-        className={`transition-all hover:shadow-lg h-full ${
+        className={`transition-all hover:shadow-lg h-full rounded-lg  text-card-foreground group relative overflow-hidden border-0 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1 animate-slide-up  ${
           isProduct ? 'p-[18px]' : 'p-6'
         }`}
       >
+        {/* <div
+          data-lov-id='src/components/MetricCard.tsx:26:6'
+          data-lov-name='div'
+          data-component-path='src/components/MetricCard.tsx'
+          data-component-line='26'
+          data-component-file='MetricCard.tsx'
+          data-component-name='div'
+          data-component-content='%7B%7D'
+          class='absolute bg-blue-50 inset-0 bg-gradient-to-br from-primary to-primary-light opacity-5 transition-opacity group-hover:opacity-10'
+        ></div> */}
         <div className='flex items-start justify-between'>
           <div className='space-y-2 w-full'>
-            <p className={`text-lg font-medium text-muted-foreground`}>
+            <p className={`text-sm font-medium text-muted-foreground`}>
               {title}
             </p>
             {isProduct ? (
               <div className='flex  justify-between  gap-x-1'>
                 {summaries.map((s, i) => (
-                  <div
+                  <Link
                     key={i}
-                    className={`flex flex-col text-center border  p-2 rounded-md w-full ${
-                      s.approvalRate === '100.00%'
-                        ? 'bg-[#fcfffc]'
-                        : 'bg-[#fffafa]'
-                    }`}
+                    className='  w-full text-[10px] transition-all'
+                    to={`products?status=all&methord=${s.destination}&matrix=false`}
                   >
-                    <span className='text-[13px] text-gray-900'>
-                      {s.destination}
-                    </span>
-                    <span className='text-lg font-semibold'>
-                      {s.approvalRate}
-                    </span>
-                    {s.approvalRate === '100.00%' ? (
-                      <span className='text-[12px] text-green-600'>
-                        All Approved
+                    <div
+                      className={` group flex flex-col text-center border  p-2 rounded-md w-full hover:border-blue-500 hover:bg-blue-50 hover:shadow-md ${
+                        s.approvalRate === '100.00%' ? 'bg-white' : 'bg-white'
+                      }`}
+                    >
+                      <span className='text-[13px] text-gray-900 flex items-center justify-center gap-1'>
+                        {s.destination}{' '}
+                        {s.approvalRate === '100.00%' ? (
+                          <CheckCircle color='green' size={14} />
+                        ) : (
+                          <MessageCircleWarning color='red' size={14} />
+                        )}
                       </span>
-                    ) : (
-                      <Link
-                        className='text-[12px] text-blue-600 hover:underline'
-                        to={`products?status=Disapproval&methord=${s.destination}&matrix=false`}
-                      >
-                        View Disapproval
-                      </Link>
-                    )}
-                  </div>
+                      <span className={`text-xl font-semibold text-gray-700 `}>
+                        {s.approvalRate}
+                      </span>
+                      <span className='text-[10px] text-blue-600 group-hover:underline transition-all'>
+                        View Approval
+                      </span>
+                    </div>
+                  </Link>
                 ))}
               </div>
             ) : (
-              <p className='text-3xl font-bold text-foreground '>{value}</p>
+              <p className='text-4xl font-semibold text-gray-700'>{value}</p>
             )}
           </div>
           {isProduct ? (
             ''
           ) : (
-            <div className={`rounded-xl p-3 ${variantStyles[variant]}`}>
-              <Icon className='h-6 w-6' />
+            <div className={`rounded-xl  `}>
+              <img src={iconUrl} alt={title} className='w-32 ' />
             </div>
           )}
         </div>
@@ -324,35 +429,62 @@ const FeedAudit = () => {
 
   return (
     <div>
+      <Button variant='outline'>
+        <Link to='/playbook'> &larr; Go To Playbook</Link>
+      </Button>
       <div className='flex justify-between mb-10 mt-8'>
-        <h1 className='text-3xl font-bold text-foreground '>
+        <h1 className='text-3xl font-medium text-gray-900'>
           Google Shopping Audit
         </h1>
         <div className='flex gap-x-3 items-center'>
-          <p className='text-sm text-muted-foreground'> Date : Sep 30, 2025</p>
+          <p className='text-sm text-muted-foreground'>
+            Date:{' '}
+            {new Date().toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+            })}
+          </p>
           <Button variant='outline'>View Past Audit's</Button>
           <Button variant='default'>Save As PDF</Button>
         </div>
       </div>
+
       <div className='grid grid-cols-7 gap-x-2 mt-5'>
         {/* Left card (normal size) */}
         <div className='col-span-2'>
-          {rankCard('FeedRank', '80%', TrendingUp, 'primary')}
+          {rankCard(
+            'FeedRank',
+            '80%',
+            'https://www.gstatic.com/merchants/tasks/card_illustration/increase_campaign_budget.svg',
+            'primary'
+          )}
         </div>
 
         {/* Middle card (bigger, spans 3 columns) */}
         <div className='col-span-3'>
-          {rankCard('Product Approval', '90%', CheckCircle, 'success', true)}
+          {rankCard(
+            'Product Approval',
+            '90%',
+            'https://www.gstatic.com/merchants/tasks/card_illustration/increase_campaign_budget.svg',
+            'success',
+            true
+          )}
         </div>
 
         {/* Right card (normal size) */}
         <div className='col-span-2'>
-          {rankCard('Account Compliance', '90%', Sprout, 'success')}
+          {rankCard(
+            'Account Compliance',
+            '90%',
+            'https://www.gstatic.com/merchants/tasks/card_illustration/news_and_tips.svg',
+            'success'
+          )}
         </div>
       </div>
       <div className='mt-5 mb-8 text-xl'>
         <div className='flex items-center gap-2'>
-          <h2 className='text-2xl font-semibold text-foreground'>
+          <h2 className='text-2xl font-medium text-gray-900'>
             Product Performance Summary
           </h2>
           <TooltipProvider>
@@ -374,19 +506,19 @@ const FeedAudit = () => {
       <div className='grid grid-cols-4 gap-x-3'>
         {card(
           'Products With Impressions',
-          formatNumber(productWithImpressions.length),
+          productWithImpressions.length,
           '70%',
           impresionApproval
         )}
         {card(
           'Clicked Products',
-          formatNumber(productWithClicks.length),
+          productWithClicks.length,
           '70%',
           clickApproval
         )}
         {card(
           'Unclicked Products',
-          formatNumber(productWithOutClicks.length),
+          productWithOutClicks.length,
           '70%',
           nonClickApproval
         )}

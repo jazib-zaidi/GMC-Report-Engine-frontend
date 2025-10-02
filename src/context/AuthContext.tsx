@@ -100,6 +100,7 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({
     startDate: format(subDays(new Date(), 30), 'yyyy-MM-dd'),
     endDate: format(new Date(), 'yyyy-MM-dd'),
   });
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const authToken = () => {
     const token = localStorage.getItem('authToken');
     if (token) {
@@ -144,8 +145,10 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({
     }
   };
 
-  const auditFeed = async (feedUrl, fetchAll = false) => {
-    const url = `${import.meta.env.VITE_API_URL}/api/audit-feed${authToken()}`;
+  const auditFeed = async (id) => {
+    const url = `${
+      import.meta.env.VITE_API_URL
+    }/api/audit-feed${authToken()}&merchantId=${id}`;
     try {
       const response = await axios.get(url, {
         withCredentials: true,
@@ -438,6 +441,8 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({
         allProducts,
         setAllProducts,
         setAuditFeedData,
+        setSidebarOpen,
+        sidebarOpen,
       }}
     >
       {children}

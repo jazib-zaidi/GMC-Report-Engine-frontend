@@ -1,7 +1,28 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '../../utils/cn';
-import { ChevronDown, ChevronUp, SheetIcon, Sparkles } from 'lucide-react';
+import {
+  ChevronDown,
+  ChevronUp,
+  Loader,
+  SheetIcon,
+  Sparkles,
+} from 'lucide-react';
+import { ChevronsUpDown } from 'lucide-react';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
+
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 
 import {
   BarChart2,
@@ -17,6 +38,8 @@ import {
   BrainCircuit,
 } from 'lucide-react';
 import { SidebarItem } from '../../types';
+import { useAuth } from '@/context/AuthContext';
+import { Button } from '../ui/button';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -46,7 +69,21 @@ const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const location = useLocation();
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [open, setOpen] = React.useState(false);
+  const [selected, setSelected] = React.useState(null);
   const [subExpanded, setSubExpanded] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const { fetchMerchantAccounts, merchantAccounts, setMerchantSelect } =
+    useAuth();
+  useEffect(() => {
+    if (merchantAccounts) {
+      setLoading(false);
+    } else {
+      setLoading(true);
+    }
+  }, [merchantAccounts]);
+
+  console.log(open);
   let sidebarItems: SidebarItem[] = [
     {
       id: 'Playbook',
@@ -214,8 +251,60 @@ const Sidebar: React.FC<SidebarProps> = ({
             />
           </div>
         </div>
-        <nav className='p-2 overflow-y-auto h-[calc(100vh-4rem)] lg:h-[calc(100vh-5rem)]'>
+        <nav className=' pt-2 pb-3 overflow-y-auto h-[calc(100vh-4rem)] lg:h-[calc(100vh-5rem)]'>
           <ul className='space-y-1'>
+            <Popover open={open} onOpenChange={setOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant='outline'
+                  role='combobox'
+                  aria-expanded={open}
+                  className='w-[250px] justify-between'
+                >
+                  {loading ? (
+                    <div className='flex items-center justify-between'>
+                      <Loader className='animate-spin' />{' '}
+                      <div className='ml-2'>Loading accounts...</div>
+                    </div>
+                  ) : selected ? (
+                    selected.name
+                  ) : (
+                    'Select merchant account...'
+                  )}
+                  <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+                </Button>
+              </PopoverTrigger>
+
+              <PopoverContent className='w-[250px] p-0'>
+                <Command>
+                  <CommandInput placeholder='Search accounts...' />
+                  <CommandList>
+                    <CommandEmpty>No account found.</CommandEmpty>
+                    <CommandGroup>
+                      {merchantAccounts?.map((account) => (
+                        <CommandItem
+                          key={account.id}
+                          value={account.name}
+                          onSelect={() => {
+                            setSelected(account);
+                            setOpen(false);
+                            setMerchantSelect(account);
+                          }}
+                          className='flex flex-col items-start'
+                        >
+                          <span className='text-sm font-medium'>
+                            {account.name}
+                          </span>
+                          <span className='text-xs text-gray-500'>
+                            {account.id}
+                          </span>
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
             {sidebarItems.map((item) => {
               const isActive =
                 location.pathname === item.path ||

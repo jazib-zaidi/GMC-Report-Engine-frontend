@@ -5,7 +5,7 @@ const playbookItem = [
 
     url: '/playbook/feed-audit',
     description:
-      'Feed Validations automatically review your product data to ensure it meets Google and channel requirements. Checks include title and description length, missing or incomplete attributes, formatting errors, and invalid URLs. By catching these issues early, you can prevent disapprovals.',
+      'Feed Validations automatically review your product data to ensure it meets Google and channel requirements. Checks include title and description approval marketing method, formatting errors, and invalid URLs.',
     buttonText: 'Audit Feed',
   },
   {
@@ -23,7 +23,7 @@ const playbookItem = [
 
     url: '/playbook/data-bridge',
     description:
-      'DataBridge is a standalone tool that allows you to view product data directly from your data sources. It also helps you map relevant attributes for seamless integration. The tool supports major platforms including Shopify, Magento, BigCommerce, and Salesforce. ',
+      'DataBridge is a standalone tool that allows you to view product data directly from your data sources. The tool supports major platforms including Shopify, Magento, BigCommerce, and Salesforce. ',
     buttonText: 'View DataBridge',
   },
 ];
