@@ -213,7 +213,7 @@ export default function ProductStatusTable({
                     {product?.impressions || 0}
                   </TableCell>
                   <TableCell className='py-4'>
-                    {product?.ctr?.toFixed(2) || 0}
+                    {(product?.ctr ?? 0).toFixed(2)}
                   </TableCell>
                 </>
               )}
