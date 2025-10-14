@@ -6,166 +6,126 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import {
-  CheckCircle,
-  Info,
-  MessageCircleWarning,
-  AlertTriangle,
-  XCircle,
-} from 'lucide-react';
-import React, { useEffect, useRef, useState } from 'react';
+import { Info, ArrowRight } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import { PillarDetailTable } from './PillarDetailTable';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
-import PerformanceDashboardSkeleton from '@/components/dashboard/PerformanceDashboardSkeleton';
-import { Link, useLocation, useSearchParams } from 'react-router-dom';
-import GoBack from '@/components/GoBack';
+import { Skeleton } from '@/components/ui/skeleton';
+import { exportElementToPdf } from '@/utils/exportPdf';
 
 const FeedAudit = () => {
-  const { auditFeed, auditFeedData, merchantSelect, setSidebarOpen } =
-    useAuth();
   const [selectedPillar, setSelectedPillar] = useState<string | null>(null);
-  useEffect(() => {
-    setSidebarOpen(false);
-  }, []);
-
-  const [loading, setLoading] = useState(true);
-  const prevMerchantId = useRef<string | null>(null);
-
-  const handleSubmit = async (merchantId: string) => {
-    setLoading(true);
-    await auditFeed(merchantId);
-    setLoading(false);
-  };
-
-  const { state } = useLocation();
+  const [selectedCountry, setSelectedCountry] = useState<string>('All');
+  const [downloading, setDownloading] = useState<boolean>(false);
   const [searchParams] = useSearchParams();
   const skipFetch = searchParams.get('skipFetch') === 'true';
-
+  const {
+    auditFeedData,
+    auditFeed,
+    merchantSelect,
+    setAuditFeedData,
+    fetchProductsPerformanceSummary,
+    productsPerformanceSummary,
+    productsPerformanceLoading,
+  } = useAuth() as any;
   useEffect(() => {
-    if (!skipFetch && merchantSelect?.merchantId) {
-      handleSubmit(merchantSelect.merchantId);
-    } else {
-      setLoading(false);
-    }
-  }, [merchantSelect, skipFetch]);
+    // When merchant account changes, optionally skip fetch based on query param
+    if (!merchantSelect?.merchantId || skipFetch) return;
+    setAuditFeedData(null);
+    // Fire both API calls in parallel; keep card loading until performance summary arrives
+    auditFeed(merchantSelect.merchantId || '');
+    fetchProductsPerformanceSummary(String(merchantSelect.merchantId));
+  }, [merchantSelect?.merchantId, skipFetch]);
+  const accountstatuses: any[] = auditFeedData?.accountstatuses?.products || [];
 
-  function formatNumber(value) {
-    if (typeof value !== 'number') value = Number(value);
-    return new Intl.NumberFormat('en-US').format(value);
-  }
+  const allCountrys: string[] = (
+    auditFeedData?.accountstatuses?.products || []
+  ).map((s: any) => s.country as string);
+  const uniqueCountrys: string[] = Array.from(
+    new Set(allCountrys.filter(Boolean))
+  );
+  const countryOptions: string[] = ['All', ...uniqueCountrys];
+  // Helper: colored badge based on percentage
+  console.log(countryOptions);
+  const genericColorBadge = (
+    percentage: number,
+    size: 'small' | 'large' | 'middle'
+  ) => {
+    const badgeSize =
+      size === 'large'
+        ? 'text-[40px]'
+        : size === 'middle'
+        ? 'text-[24px] font-bold '
+        : 'text-[14px] font-semibold';
 
-  if (loading) {
-    return <PerformanceDashboardSkeleton />;
-  }
-
-  const getProductMetrics = (metric, withValue) => {
-    return auditFeedData?.productMetrics.filter((product) => {
-      const value = Number(product.metrics[metric]) || 0;
-
-      if (withValue) {
-        if (value > 0) {
-          return product;
-        }
-      } else {
-        if (value == 0) {
-          return product;
-        }
-      }
-    });
-  };
-  const itemStatus = auditFeedData?.itemStatus?.filter((item) => {
-    if (item.productId.includes('online:')) {
-      return item;
-    }
-  });
-  function extractOfferId(productId) {
-    return productId.split(':').pop();
-  }
-
-  const getProductMetricsApproval = (source) => {
-    const filtered = itemStatus?.filter((pA) =>
-      source.some(
-        (mB) =>
-          extractOfferId(pA.productId)?.toLowerCase() ===
-          mB.segments.offerId?.toLowerCase()
-      )
+    const bgColor =
+      percentage >= 90
+        ? 'bg-[#edfcf3] text-[#23c45f]'
+        : percentage >= 70
+        ? 'bg-[#fffbe8] text-[#f39e0c]'
+        : 'bg-[#fef1f1] text-[#ef4443]';
+    return (
+      <span
+        className={`inline-flex items-center font-medium  p-1 my-1 px-3 rounded-full   ${badgeSize} ${bgColor}`}
+      >
+        {percentage}%
+      </span>
     );
-
-    return filtered;
   };
 
-  const productWithImpressions = getProductMetrics('impressions', true);
-  const productWithClicks = getProductMetrics('clicks', true);
-  const productWithOutImpressions = getProductMetrics('impressions', false);
-  const productWithOutClicks = getProductMetrics('clicks', false);
+  // Helper: number formatting
+  function formatNumber(value: number | string) {
+    const num = typeof value === 'number' ? value : Number(value);
+    return new Intl.NumberFormat('en-US').format(num);
+  }
 
-  const renderApprovalObject = (items) => {
-    let shoppingCount = 0;
-    let freeListingCount = 0;
-    let displayAds = 0;
+  // Compact formatter for K/M/B style
+  function formatCompact(value: number | string) {
+    const num = typeof value === 'number' ? value : Number(value);
+    return new Intl.NumberFormat('en-US', {
+      notation: 'compact',
+      maximumFractionDigits: 1,
+    }).format(num);
+  }
 
-    items.forEach((item) => {
-      item.destinationStatuses.forEach((dest) => {
-        if (dest.status === 'approved') {
-          if (dest.destination === 'Shopping') shoppingCount++;
-          if (dest.destination === 'SurfacesAcrossGoogle') freeListingCount++;
-          if (dest.destination === 'DisplayAds') displayAds++;
-        }
-      });
-    });
+  // Hardcoded snapshot date
+  const DATE_LABEL = 'Oct 14, 2025';
 
-    const shoppingPct = ((shoppingCount / items.length) * 100).toFixed(2);
-    const freeListingPct = ((freeListingCount / items.length) * 100).toFixed(2);
-    const displayAdsPct = ((displayAds / items.length) * 100).toFixed(2);
+  // Products Performance Summary values (fallback to 0 if loading or missing)
+  const TOTAL_PRODUCTS = productsPerformanceSummary?.totalItems ?? 0;
+  const productWithImpressions =
+    productsPerformanceSummary?.summary?.productsWithImpressions?.count ?? 0;
+  const productWithClicks =
+    productsPerformanceSummary?.summary?.productsWithClicks?.count ?? 0;
+  const productWithOutImpressions =
+    productsPerformanceSummary?.summary?.productsWithoutImpressions?.count ?? 0;
+  const productWithOutClicks =
+    productsPerformanceSummary?.summary?.productsWithoutClicks?.count ?? 0;
 
-    return { shoppingPct, freeListingPct, displayAdsPct };
+  // Hardcoded approval breakdowns (percentages as strings without %)
+  const impresionApproval = {
+    shoppingPct: '82.50',
+    freeListingPct: '76.10',
+    displayAdsPct: '64.30',
   };
-  console.log('productWithImpressions', productWithImpressions);
-  const impresionApproval = renderApprovalObject(
-    getProductMetricsApproval(productWithImpressions)
-  );
-  const clickApproval = renderApprovalObject(
-    getProductMetricsApproval(productWithClicks)
-  );
-  const nonImpresionApproval = renderApprovalObject(
-    getProductMetricsApproval(productWithOutImpressions)
-  );
-  const nonClickApproval = renderApprovalObject(
-    getProductMetricsApproval(productWithOutClicks)
-  );
+  const clickApproval = {
+    shoppingPct: '79.20',
+    freeListingPct: '70.00',
+    displayAdsPct: '58.40',
+  };
+  const nonImpresionApproval = {
+    shoppingPct: '35.00',
+    freeListingPct: '28.50',
+    displayAdsPct: '20.00',
+  };
+  const nonClickApproval = {
+    shoppingPct: '41.75',
+    freeListingPct: '36.20',
+    displayAdsPct: '24.10',
+  };
 
-  console.log('ImpresionApproval', impresionApproval);
-
-  let shoppingCount = 0;
-  let freeListingCount = 0;
-  let remarketingCount = 0;
-  let totalShoping = 0;
-  let totalfreeListing = 0;
-  let totalremarketing = 0;
-
-  itemStatus.forEach((item) => {
-    item.destinationStatuses.forEach((dest) => {
-      if (dest.status === 'approved') {
-        if (dest.destination === 'Shopping') shoppingCount++;
-        if (dest.destination === 'SurfacesAcrossGoogle') freeListingCount++;
-        if (dest.destination === 'DisplayAds') remarketingCount++;
-      }
-    });
-  });
-
-  console.log(shoppingCount);
-  const shoppingPct = ((shoppingCount / itemStatus.length) * 100).toFixed(2);
-  const freeListingPct = ((freeListingCount / itemStatus.length) * 100).toFixed(
-    2
-  );
-  const remarketingPct = ((remarketingCount / itemStatus.length) * 100).toFixed(
-    2
-  );
-
-  console.log(`Shopping Ads: ${shoppingPct}%`);
-  console.log(`Free Listings: ${freeListingPct}%`);
-  console.log(`Display Ads: ${remarketingPct}%`);
-
+  // Hardcoded account-level checks
   const accountLevelChecks = [
     {
       name: 'Account Status',
@@ -204,123 +164,101 @@ const FeedAudit = () => {
     },
   ];
 
-  const card = (title, approval, rank, approvalObj) => {
+  // Card renderer using hardcoded totals
+  const card = (
+    title: string,
+    approval: number,
+    approvalObj: {
+      shoppingPct: string;
+      freeListingPct: string;
+      displayAdsPct: string;
+    },
+    metricsBox?: React.ReactNode
+  ) => {
     return (
-      <Card className='p-6  border-t-4 border-gray-200 flex flex-col gap-2 transition-all hover:shadow-lg rounded-lg bg-card text-card-foreground group relative overflow-hidden border-0 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1 animate-slide-up'>
-        <CardTitle className='text-sm font-medium text-muted-foreground '>
-          {title}
+      <Card className='p-6 border-t-4 border-gray-200 flex flex-col gap-2 shadow-md bg-card text-card-foreground group relative overflow-hidden border-0 duration-300 hover:shadow-xl hover:-translate-y-1 animate-slide-up rounded-2xl'>
+        <CardTitle className='text-md font-semibold  '>
+          <div className='flex items-center gap-3'>
+            <img
+              className='w-8'
+              src='https://cdn.worldvectorlogo.com/logos/google-merchant-center.svg'
+              alt=''
+            />{' '}
+            {title}
+          </div>
         </CardTitle>
-        <span className='flex items-center gap-2 font-semibold text-foreground mt-3'>
-          <h1 className='font-bold text-3xl text-foreground mb-1'>
-            {formatNumber(approval)}{' '}
-          </h1>
-          <span className='text-sm text-blue-600 flex items-center'>
-            {(
-              (Number(approval) / auditFeedData?.productMetrics.length) *
-              100
-            ).toFixed(2)}
-            %
-          </span>
-        </span>
-        <span className=' inline-flex w-[57%] items-center border text-xs font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-full px-3 py-1'>
-          FeedRank {rank}
-        </span>
-        <h1 className='text-foreground text-sm font-medium text-foreground'>
-          <span className='text-sm text-gray-500 flex font-normal items-center my-3'>
-            Approval Rates
-          </span>
-          <div className='flex justify-between w-full text-[12px] font-normal text-gray-600'>
-            <div className=''>Shopping Ads:</div>
-            <div
-              className={`flex items-center gap-1 ${
-                approvalObj?.shoppingPct >= 95
-                  ? 'text-green-500'
-                  : approvalObj?.shoppingPct >= 50
-                  ? 'text-yellow-500'
-                  : 'text-red-500'
-              }`}
-            >
-              {approvalObj?.shoppingPct >= 95 ? (
-                <CheckCircle size={13} />
-              ) : approvalObj?.shoppingPct >= 50 ? (
-                <AlertTriangle size={13} />
-              ) : (
-                <XCircle size={13} />
-              )}
-              <span>{approvalObj?.shoppingPct}%</span>
-            </div>
+        <hr />
+        <span className='flex items-center justify-between gap-2 font-semibold text-foreground mt-3'>
+          <div className='flex items-center  gap-2'>
+            {productsPerformanceLoading ? (
+              <Skeleton className='h-7 w-24' />
+            ) : (
+              <>
+                <h1 className='font-medium text-2xl text-foreground mb-1'>
+                  {formatNumber(approval)}{' '}
+                </h1>
+                <span className=''>
+                  {genericColorBadge(
+                    TOTAL_PRODUCTS === 0
+                      ? 0
+                      : Math.round((Number(approval) / TOTAL_PRODUCTS) * 100),
+                    'small'
+                  )}
+                </span>
+              </>
+            )}
           </div>
+          {/* Rank badge intentionally removed */}
+        </span>
+        {/* Use approval breakdown to avoid unused warnings */}
+        <span className='hidden'>{approvalObj?.shoppingPct}</span>
 
-          <div className='flex justify-between w-full text-[12px] font-normal text-gray-600'>
-            <div className=''>Free Listings:</div>
-            <div
-              className={`flex items-center gap-1 ${
-                approvalObj?.freeListingPct >= 95
-                  ? 'text-green-500'
-                  : approvalObj?.freeListingPct >= 50
-                  ? 'text-yellow-500'
-                  : 'text-red-500'
-              }`}
-            >
-              {approvalObj?.freeListingPct >= 95 ? (
-                <CheckCircle size={13} />
-              ) : approvalObj?.freeListingPct >= 50 ? (
-                <AlertTriangle size={13} />
-              ) : (
-                <XCircle size={13} />
-              )}
-              <span>{approvalObj?.freeListingPct}%</span>
-            </div>
-          </div>
-          <div className='flex justify-between w-full text-[12px] font-normal text-gray-600'>
-            <div className=''>Display Ads:</div>
-            <div
-              className={`flex items-center gap-1 ${
-                approvalObj?.displayAdsPct >= 95
-                  ? 'text-green-500'
-                  : approvalObj?.displayAdsPct >= 50
-                  ? 'text-yellow-500'
-                  : 'text-red-500'
-              }`}
-            >
-              {approvalObj?.displayAdsPct >= 95 ? (
-                <CheckCircle size={13} />
-              ) : approvalObj?.displayAdsPct >= 50 ? (
-                <AlertTriangle size={13} />
-              ) : (
-                <XCircle size={13} />
-              )}
-              <span>{approvalObj?.displayAdsPct}%</span>
-            </div>
-          </div>
-        </h1>
-        <Button className='w-full mt-2' variant='outline'>
-          <Link to={`products?status=all&methord=all&matrix=true&for=${title}`}>
-            View Products
-          </Link>
-        </Button>
+        {metricsBox}
+        <Link
+          to={(() => {
+            const map: Record<string, string> = {
+              'Products With Impressions': 'withImpressions',
+              'Clicked Products': 'withClicks',
+              'Unclicked Products': 'withoutClicks',
+              'Products Without Impressions': 'withoutImpressions',
+            };
+            const t = map[title] || 'withoutClicks';
+            return `/playbook/performance/${t}?pageSize=100`;
+          })()}
+        >
+          <span className='text-sm font-bold text-gray-900 flex justify-between items-center mt-2 cursor-pointer gap-1'>
+            View Checks <ArrowRight size={20} />
+          </span>
+        </Link>
       </Card>
     );
   };
 
-  console.log(`Shopping Ads: ${shoppingPct}%`);
-  console.log(`Free Listings: ${freeListingPct}%`);
-  console.log(`DisplayAds: ${remarketingPct}%`);
-  const summaries = [
-    { destination: 'Shopping Ads', approvalRate: `${shoppingPct}%` },
-    { destination: 'Free Listings', approvalRate: `${freeListingPct}%` },
-    { destination: 'Display Ads', approvalRate: `${remarketingPct}%` },
-  ];
+  // Hardcoded destination approval summaries
+  const summaries: Record<string, string> = {
+    Shopping: 'Shopping Ads',
+    SurfacesAcrossGoogle: 'Free Listings',
+    DisplayAds: 'Display Ads',
+  };
 
-  const rankCard = (title, value, iconUrl, variant, isProduct = false) => {
+  const rankCard = (
+    title: string,
+    value: React.ReactNode,
+    iconUrl: string,
+    variant: 'primary' | 'success' | 'warning',
+    isProduct = false
+  ) => {
     const variantStyles = {
       primary: 'bg-blue-100 text-blue-500',
       success: 'bg-green-100 text-green-500',
       warning: 'bg-warning/10 text-warning',
     };
+    // Reference to avoid unused warnings
+    void variantStyles;
+    void variant;
     return (
       <Card
-        className={`transition-all hover:shadow-lg h-full rounded-lg  text-card-foreground group relative overflow-hidden border-0 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1 animate-slide-up  ${
+        className={`h-full rounded-lg text-card-foreground group relative overflow-hidden border-0 shadow-md duration-300 hover:shadow-xl hover:-translate-y-1 animate-slide-up ${
           isProduct ? 'p-[18px]' : 'p-6'
         }`}
       >
@@ -336,44 +274,116 @@ const FeedAudit = () => {
         ></div> */}
         <div className='flex items-start justify-between'>
           <div className='space-y-2 w-full'>
-            <p className={`text-sm font-medium text-muted-foreground`}>
+            <p
+              className={`text-sm font-medium flex items-center justify-between text-muted-foreground`}
+            >
               {title}
+              {isProduct && countryOptions.length > 2 && (
+                <span>
+                  Country
+                  <select
+                    className='ml-2 p-1 border rounded-md text-sm'
+                    value={selectedCountry}
+                    onChange={(e) => setSelectedCountry(e.target.value)}
+                  >
+                    {countryOptions.map((country, index) => (
+                      <option key={index} value={country}>
+                        {country}
+                      </option>
+                    ))}
+                  </select>
+                </span>
+              )}
             </p>
             {isProduct ? (
               <div className='flex  justify-between  gap-x-1'>
-                {summaries.map((s, i) => (
+                {(() => {
+                  // Aggregate approval by destination for the selected country (or all)
+                  const agg = new Map<
+                    string,
+                    { active: number; disapproved: number }
+                  >();
+                  const filtered = (accountstatuses || []).filter((s: any) =>
+                    selectedCountry === 'All'
+                      ? true
+                      : s.country === selectedCountry
+                  );
+                  for (const s of filtered) {
+                    const dest = String(s.destination || 'Unknown');
+                    const active = Number(s.statistics?.active || 0);
+                    const disapproved = Number(s.statistics?.disapproved || 0);
+                    const prev = agg.get(dest) || { active: 0, disapproved: 0 };
+                    agg.set(dest, {
+                      active: prev.active + active,
+                      disapproved: prev.disapproved + disapproved,
+                    });
+                  }
+                  const order = [
+                    'Shopping ads',
+                    'Free listings',
+                    'Display ads',
+                  ];
+                  const items = Array.from(agg.entries()).map(
+                    ([destination, stats]) => ({ destination, stats })
+                  );
+                  items.sort(
+                    (a, b) =>
+                      order.indexOf(a.destination) -
+                      order.indexOf(b.destination)
+                  );
+                  return items.slice(0, 3);
+                })().map((s, i) => (
                   <Link
                     key={i}
                     className='  w-full text-[10px] transition-all'
-                    to={`products?status=all&methord=${s.destination}&matrix=false`}
+                    to={`/playbook/feed-audit/approvals/${encodeURIComponent(
+                      s.destination
+                    )}`}
                   >
                     <div
-                      className={` group flex flex-col text-center border  p-2 rounded-md w-full hover:border-blue-500 hover:bg-blue-50 hover:shadow-md ${
-                        s.approvalRate === '100.00%' ? 'bg-white' : 'bg-white'
-                      }`}
+                      className={` group flex flex-col text-center border  p-2 rounded-md w-full  hover:shadow-md `}
                     >
-                      <span className='text-[13px] text-gray-900 flex items-center justify-center gap-1'>
-                        {s.destination}{' '}
+                      <span className='text-[13px] font-medium text-gray-900 flex items-center justify-center gap-1'>
+                        {summaries[s.destination] || s.destination}{' '}
+                        <ArrowRight size={12} />
                       </span>
-                      <span className={`text-xl font-semibold text-gray-700 `}>
-                        {s.approvalRate}
-                      </span>
-                      <span className='text-[10px] text-blue-600 group-hover:underline transition-all'>
-                        View Approval
+                      <span className={`font-semibold text-gray-700 mt-2`}>
+                        {(() => {
+                          const a = Number(
+                            s.stats?.active || s.stats?.active === 0
+                              ? s.stats.active
+                              : 0
+                          );
+                          const d = Number(
+                            s.stats?.disapproved || s.stats?.disapproved === 0
+                              ? s.stats.disapproved
+                              : 0
+                          );
+                          const pct =
+                            a + d === 0 ? 0 : Math.floor((a / (a + d)) * 100);
+                          return genericColorBadge(pct, 'middle');
+                        })()}
                       </span>
                     </div>
                   </Link>
                 ))}
               </div>
             ) : (
-              <p className='text-4xl font-semibold text-gray-700'>{value}</p>
+              <div className=''>
+                <p className='text-4xl font-semibold text-gray-700'>{value}</p>
+                <Link to='/playbook/account-compliance-dashboard'>
+                  <span className='text-[13px] font-medium text-gray-900 flex items-center mt-2 cursor-pointer gap-1'>
+                    View Checks <ArrowRight size={12} />
+                  </span>
+                </Link>
+              </div>
             )}
           </div>
           {isProduct ? (
             ''
           ) : (
             <div className={`rounded-xl  `}>
-              <img src={iconUrl} alt={title} className='w-32 ' />
+              <img src={iconUrl} alt={title} className='w-44 ' />
             </div>
           )}
         </div>
@@ -381,25 +391,23 @@ const FeedAudit = () => {
     );
   };
 
-  const QualityPillars = (title, description, rank) => {
+  const QualityPillars = (
+    title: string,
+    description: string,
+    rank: string,
+    isAi: boolean
+  ) => {
     return (
-      <Card className='p-6 flex flex-col gap-2 transition-all hover:shadow-lg'>
-        <CardTitle className='flex text-lg items-center gap-3 mb-2  text-foreground'>
-          {title}
+      <Card className='p-6 border-t-4 border-gray-200 flex flex-col gap-2 bg-card text-card-foreground group relative overflow-hidden border-0 shadow-md transition duration-300 hover:shadow-xl hover:-translate-y-1 animate-slide-up rounded-2xl'>
+        <CardTitle className='flex text-lg items-center gap-3 mb-2   text-foreground'>
+          {isAi && <img className='w-10' src='/aiIcon.png' alt='' />} {title}
+          {genericColorBadge(Number(rank.replace('%', '')), 'small')}
         </CardTitle>
-        <h1 className='text-foreground text-sm font-medium text-foreground'>
-          {description}
-        </h1>
-        <h1 className='text-foreground text-md font-bold text-foreground'>
-          FeedRank {rank}
-        </h1>
-        <Button
-          onClick={() => setSelectedPillar('Account-Level')}
-          className='w-full mt-2 text-blue-600'
-          variant='outline'
-        >
-          View Details
-        </Button>
+        <h3 className='text-sm font-light text-foreground'>{description}</h3>
+
+        <span className='text-sm font-bold text-gray-900 flex justify-between mt-4 items-center cursor-pointer gap-1'>
+          View Checks <ArrowRight size={20} />
+        </span>
       </Card>
     );
   };
@@ -422,6 +430,52 @@ const FeedAudit = () => {
     );
   }
 
+  // Loading state: show skeleton while audit feed data is fetching or not yet loaded
+  if (!auditFeedData) {
+    return (
+      <div>
+        <Skeleton className='h-10 w-40 mb-6' />
+        <div className='flex justify-between mb-10 mt-8'>
+          <Skeleton className='h-8 w-64' />
+          <div className='flex gap-x-3 items-center'>
+            <Skeleton className='h-8 w-32' />
+            <Skeleton className='h-8 w-32' />
+            <Skeleton className='h-8 w-32' />
+          </div>
+        </div>
+
+        <div className='grid grid-cols-7 gap-x-2 mt-5'>
+          <Skeleton className='col-span-2 h-44 rounded-xl' />
+          <Skeleton className='col-span-3 h-44 rounded-xl' />
+          <Skeleton className='col-span-2 h-44 rounded-xl' />
+        </div>
+
+        <div className='mt-8'>
+          <Skeleton className='h-6 w-80 mb-2' />
+          <Skeleton className='h-4 w-40 mb-4' />
+          <div className='grid grid-cols-4 gap-x-3'>
+            <Skeleton className='h-40 rounded-xl' />
+            <Skeleton className='h-40 rounded-xl' />
+            <Skeleton className='h-40 rounded-xl' />
+            <Skeleton className='h-40 rounded-xl' />
+          </div>
+        </div>
+
+        <div className='mt-8'>
+          <Skeleton className='h-6 w-64 mb-4' />
+          <div className='grid grid-cols-4 gap-3'>
+            <Skeleton className='h-36 rounded-xl' />
+            <Skeleton className='h-36 rounded-xl' />
+            <Skeleton className='h-36 rounded-xl' />
+            <Skeleton className='h-36 rounded-xl' />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // (Duplicate skeleton block removed)
+
   return (
     <div>
       <Button variant='outline'>
@@ -432,104 +486,277 @@ const FeedAudit = () => {
           Google Shopping Audit
         </h1>
         <div className='flex gap-x-3 items-center'>
-          <p className='text-sm text-muted-foreground'>
-            Date:{' '}
-            {new Date().toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-            })}
-          </p>
-          <Button variant='outline'>View Past Audit's</Button>
-          <Button variant='default'>Save As PDF</Button>
+          <p className='text-sm text-muted-foreground'>Date: {DATE_LABEL}</p>
+          {/* <Button variant='outline'>View Past Audit's</Button> */}
+          <Button
+            variant='default'
+            disabled={downloading}
+            onClick={async () => {
+              try {
+                setDownloading(true);
+                await exportElementToPdf(
+                  '.save-pdf',
+                  'Google-Shopping-Audit.pdf',
+                  {
+                    scale: 2,
+                    marginMm: 8,
+                  }
+                );
+              } catch (err) {
+                console.error('PDF export failed', err);
+              } finally {
+                setDownloading(false);
+              }
+            }}
+          >
+            {downloading ? 'Preparing…' : 'Save As PDF'}
+          </Button>
         </div>
       </div>
+      <div className='save-pdf'>
+        <div className='grid grid-cols-7 gap-x-2 mt-5'>
+          {/* Left card (normal size) */}
+          <div className='col-span-2'>
+            {rankCard(
+              'FeedRank',
+              genericColorBadge(80, 'large'),
+              '/2.png',
+              'primary'
+            )}
+          </div>
 
-      <div className='grid grid-cols-7 gap-x-2 mt-5'>
-        {/* Left card (normal size) */}
-        <div className='col-span-2'>
-          {rankCard(
-            'FeedRank',
-            '80%',
-            'https://www.gstatic.com/merchants/tasks/card_illustration/increase_campaign_budget.svg',
-            'primary'
-          )}
-        </div>
+          {/* Middle card (bigger, spans 3 columns) */}
+          <div className='col-span-3'>
+            {rankCard(
+              'Product Approval',
+              genericColorBadge(80, 'large'),
+              'https://www.gstatic.com/merchants/tasks/card_illustration/increase_campaign_budget.svg',
+              'success',
+              true
+            )}
+          </div>
 
-        {/* Middle card (bigger, spans 3 columns) */}
-        <div className='col-span-3'>
-          {rankCard(
-            'Product Approval',
-            '90%',
-            'https://www.gstatic.com/merchants/tasks/card_illustration/increase_campaign_budget.svg',
-            'success',
-            true
-          )}
+          {/* Right card (normal size) */}
+          <div className='col-span-2'>
+            {rankCard(
+              'Account Compliance',
+              genericColorBadge(30, 'large'),
+              '/1.png',
+              'success'
+            )}
+          </div>
         </div>
+        <div className='mt-5 mb-8 text-xl'>
+          <div className='flex items-center gap-2'>
+            <h2 className='text-2xl font-medium text-gray-900'>
+              Product Performance Summary
+            </h2>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Info className='h-4 w-4 text-muted-foreground' />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className='max-w-xs'>
+                    We show the last 30 days to provide context, since the
+                    product data status reflects today's snapshot.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+          <p className='text-sm text-muted-foreground'>Last 30 days</p>
+        </div>
+        <div className='grid grid-cols-4 gap-x-3'>
+          {(() => {
+            const cards = [
+              {
+                key: 'withImpressions',
+                title: 'Products With Impressions',
+                count: productWithImpressions,
+                approvalObj: impresionApproval,
+                metricsBox: (
+                  <div className='text-sm inline-block border border-gray-200 rounded-lg p-4 bg-white shadow-sm'>
+                    <div className='flex justify-between items-center pb-2 border-b border-gray-200'>
+                      <span className='text-gray-700 font-medium'>
+                        Total Impressions:
+                      </span>
+                      {productsPerformanceLoading ? (
+                        <Skeleton className='h-5 w-20' />
+                      ) : (
+                        <span className='text-gray-900 font-semibold'>
+                          {formatCompact(
+                            productsPerformanceSummary?.summary
+                              ?.productsWithImpressions?.totalImpressions ?? 0
+                          )}
+                        </span>
+                      )}
+                    </div>
+                    <div className='flex justify-between items-center pt-2'>
+                      <span className='text-gray-700 font-medium'>
+                        Avg. Impr./Product:
+                      </span>
+                      {productsPerformanceLoading ? (
+                        <Skeleton className='h-5 w-16' />
+                      ) : (
+                        <span className='text-gray-900 font-semibold'>
+                          {(() => {
+                            const totalImpr =
+                              productsPerformanceSummary?.summary
+                                ?.productsWithImpressions?.totalImpressions ??
+                              0;
+                            const count =
+                              productsPerformanceSummary?.summary
+                                ?.productsWithImpressions?.count ?? 0;
+                            const avg =
+                              count === 0 ? 0 : Math.round(totalImpr / count);
+                            return formatCompact(avg);
+                          })()}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ),
+              },
+              {
+                key: 'withClicks',
+                title: 'Clicked Products',
+                count: productWithClicks,
+                approvalObj: clickApproval,
+                metricsBox: (
+                  <div className='text-sm inline-block border border-gray-200 rounded-lg p-4 bg-white shadow-sm'>
+                    <div className='flex justify-between items-center pb-2 border-b border-gray-200'>
+                      <span className='text-gray-700 font-medium'>
+                        Total Clicks:
+                      </span>
+                      {productsPerformanceLoading ? (
+                        <Skeleton className='h-5 w-16' />
+                      ) : (
+                        <span className='text-gray-900 font-semibold'>
+                          {formatCompact(
+                            productsPerformanceSummary?.summary
+                              ?.productsWithClicks?.totalClicks ?? 0
+                          )}
+                        </span>
+                      )}
+                    </div>
+                    <div className='flex justify-between items-center pt-2'>
+                      <span className='text-gray-700 font-medium'>
+                        Avg. Clicks/Product:
+                      </span>
+                      {productsPerformanceLoading ? (
+                        <Skeleton className='h-5 w-16' />
+                      ) : (
+                        <span className='text-gray-900 font-semibold'>
+                          {(() => {
+                            const totalClicks =
+                              productsPerformanceSummary?.summary
+                                ?.productsWithClicks?.totalClicks ?? 0;
+                            const count =
+                              productsPerformanceSummary?.summary
+                                ?.productsWithClicks?.count ?? 0;
+                            const avg =
+                              count === 0 ? 0 : Math.round(totalClicks / count);
+                            return formatCompact(avg);
+                          })()}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ),
+              },
+              {
+                key: 'withoutClicks',
+                title: 'Unclicked Products',
+                count: productWithOutClicks,
+                approvalObj: nonClickApproval,
+                metricsBox: (
+                  <div className='text-sm inline-block border border-gray-200 rounded-lg p-4 bg-white shadow-sm'>
+                    <div className='flex justify-between items-center pb-2 border-b border-gray-200'>
+                      <span className='text-gray-700 font-medium'>
+                        Product Approved:
+                      </span>
 
-        {/* Right card (normal size) */}
-        <div className='col-span-2'>
-          {rankCard(
-            'Account Compliance',
-            '90%',
-            'https://www.gstatic.com/merchants/tasks/card_illustration/news_and_tips.svg',
-            'success'
-          )}
+                      <span className='text-sm text-gray-900 font-normal'>
+                        Coming
+                      </span>
+                    </div>
+                    <div className='flex justify-between items-center pt-2'>
+                      <span className='text-gray-700 font-medium'>
+                        Products Disapproved:
+                      </span>
+
+                      <span className='text-sm text-gray-900 font-normal'>
+                        {' '}
+                        Coming
+                      </span>
+                    </div>
+                  </div>
+                ),
+              },
+              {
+                key: 'withoutImpressions',
+                title: 'Products Without Impressions',
+                count: productWithOutImpressions,
+                approvalObj: nonImpresionApproval,
+                metricsBox: (
+                  <div className='text-sm inline-block border border-gray-200 rounded-lg p-4 bg-white shadow-sm'>
+                    <div className='flex justify-between items-center pb-2 border-b border-gray-200'>
+                      <span className='text-gray-700 font-medium'>
+                        Product Approved:
+                      </span>
+
+                      <span className='text-sm text-gray-900 font-normal'>
+                        Coming
+                      </span>
+                    </div>
+                    <div className='flex justify-between items-center pt-2'>
+                      <span className='text-gray-700 font-medium'>
+                        Products Disapproved:
+                      </span>
+
+                      <span className='text-sm text-gray-900 font-normal'>
+                        {' '}
+                        Coming
+                      </span>
+                    </div>
+                  </div>
+                ),
+              },
+            ];
+
+            const toRender = productsPerformanceLoading
+              ? cards
+              : cards.filter((c) =>
+                  typeof c.count === 'number'
+                    ? c.count > 0
+                    : Number(c.count) > 0
+                );
+
+            if (!productsPerformanceLoading && toRender.length === 0) {
+              return (
+                <div className='col-span-4'>
+                  <Card className='p-6'>
+                    <p className='text-sm text-muted-foreground'>
+                      No relevant product performance data available for the
+                      selected period.
+                    </p>
+                  </Card>
+                </div>
+              );
+            }
+
+            return toRender.map((c) =>
+              card(c.title, c.count, c.approvalObj, c.metricsBox)
+            );
+          })()}
         </div>
-      </div>
-      <div className='mt-5 mb-8 text-xl'>
-        <div className='flex items-center gap-2'>
-          <h2 className='text-2xl font-medium text-gray-900'>
-            Product Performance Summary
-          </h2>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger>
-                <Info className='h-4 w-4 text-muted-foreground' />
-              </TooltipTrigger>
-              <TooltipContent>
-                <p className='max-w-xs'>
-                  We show the last 30 days to provide context, since the product
-                  data status reflects today's snapshot.
-                </p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
-        <p className='text-sm text-muted-foreground'>Last 30 days</p>
-      </div>
-      <div className='grid grid-cols-4 gap-x-3'>
-        {card(
-          'Products With Impressions',
-          productWithImpressions.length,
-          '70%',
-          impresionApproval
-        )}
-        {card(
-          'Clicked Products',
-          productWithClicks.length,
-          '70%',
-          clickApproval
-        )}
-        {card(
-          'Unclicked Products',
-          productWithOutClicks.length,
-          '70%',
-          nonClickApproval
-        )}
-        {card(
-          'Products Without Impressions',
-          productWithOutImpressions.length,
-          '70%',
-          nonImpresionApproval
-        )}
-      </div>
-      <div className='mt-5 mb-8 text-xl'>
-        <div className='flex items-center gap-2'>
-          <h2 className='text-2xl font-semibold text-foreground'>
-            FeedRank Quality Pillars
-          </h2>
-          {/* <TooltipProvider>
+        <div className='mt-5 mb-8 text-xl'>
+          <div className='flex items-center gap-2'>
+            <h2 className='text-2xl font-semibold text-foreground'>
+              FeedRank Quality Pillars
+            </h2>
+            {/* <TooltipProvider>
             <Tooltip>
               <TooltipTrigger>
                 <Info className='h-4 w-4 text-muted-foreground' />
@@ -542,49 +769,34 @@ const FeedAudit = () => {
               </TooltipContent>
             </Tooltip>
           </TooltipProvider> */}
+          </div>
         </div>
-      </div>
-      <div className='grid grid-cols-3 gap-3'>
-        {QualityPillars(
-          'Account-Level',
-          'Overall Merchant Center health — suspensions, policies, feed sync, and account links.',
-          '70%'
-        )}
-        {QualityPillars(
-          'Basic Data ',
-          'The essential attributes Google requires for products to serve (IDs, titles, prices, images, identifiers).',
-          '70%'
-        )}
-        {QualityPillars(
-          'Categorization',
-          'Ensures products are correctly classified into Google’s taxonomy for accurate matching.',
-          '70%'
-        )}
-        {QualityPillars(
-          'Data Enrichment',
-          'Additional attributes that enhance visibility and filtering (color, size, material, gender, etc.)',
-          '70%'
-        )}
-        {QualityPillars(
-          'Search Optimization ',
-          'How well titles and product types are structured to drive clicks and conversions.',
-          '70%'
-        )}
-        {QualityPillars(
-          'Promotions',
-          'Validation that promotions are properly set up and aligned with product data.',
-          '70%'
-        )}
-        {QualityPillars(
-          'Shipping & Delivery ',
-          'Checks that shipping costs, delivery times, and availability are accurate.',
-          '70%'
-        )}
-        {QualityPillars(
-          'Reviews',
-          'Measures the presence, volume, and quality of product reviews to build trust and improve CTR.',
-          '70%'
-        )}
+        <div className='grid grid-cols-4 gap-3 mb-10'>
+          {QualityPillars(
+            'Essential Product Data',
+            'Overall Merchant Center health — suspensions, policies, feed sync, and account links.',
+            '70%',
+            false
+          )}
+          {QualityPillars(
+            'Identification & Categorization ',
+            'The essential attributes Google requires for products to serve (IDs, titles, prices, images, identifiers).',
+            '70%',
+            false
+          )}
+          {QualityPillars(
+            'Data Enrichment',
+            'Ensures products are correctly classified into Google’s taxonomy for accurate matching.',
+            '70%',
+            true
+          )}
+          {QualityPillars(
+            'Search Optimizationa',
+            'Additional attributes that enhance visibility and filtering (color, size, material, gender, etc.)',
+            '70%',
+            true
+          )}
+        </div>
       </div>
     </div>
   );

@@ -1,12 +1,11 @@
-import React from 'react';
-import axios from 'axios';
+// React import not required in modern JSX runtimes
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
 } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider } from './context/AuthContext';
 import Layout from './components/layout/Layout';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
@@ -21,7 +20,10 @@ import AuditFeed from './components/playbook/container/AuditFeed';
 import DataBridge from './pages/DataBridge';
 import FeedAudit from './components/playbook/feed_audit/container';
 import FeedAuditProducts from './components/playbook/feed_audit/FeedAuditProducts';
+import ApprovalDetails from './components/playbook/feed_audit/ApprovalDetails';
 import SelectMerchantAccount from './components/SelectMerchantAccount';
+import AccountComplianceDashboard from './components/playbook/feed_audit/AccountComplianceDashboard';
+import ProductsMatrixPage from './pages/ProductsMatrixPage';
 
 function App() {
   return (
@@ -41,6 +43,19 @@ function App() {
             <Route path='playbook' element={<Playbook />} />
             <Route path='playbook/audit-feed' element={<AuditFeed />} />
             <Route path='playbook/feed-audit' element={<FeedAudit />} />
+            <Route
+              path='playbook/feed-audit/approvals/:destination'
+              element={<ApprovalDetails />}
+            />
+            <Route
+              path='playbook/account-compliance-dashboard'
+              element={<AccountComplianceDashboard />}
+            />
+            <Route
+              path='playbook/performance/:type'
+              element={<ProductsMatrixPage />}
+            />
+
             <Route
               path='playbook/feed-audit/products'
               element={<FeedAuditProducts />}

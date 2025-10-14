@@ -115,7 +115,9 @@ export default {
   		animation: {
   			'fade-in': 'fadeIn 0.3s ease-in-out',
   			'slide-in': 'slideIn 0.3s ease-in-out',
-  			'spin-slow': 'spin 2s linear infinite'
+  			'spin-slow': 'spin 2s linear infinite',
+  			'accordion-down': 'accordion-down 0.2s ease-out',
+  			'accordion-up': 'accordion-up 0.2s ease-out'
   		},
   		keyframes: {
   			fadeIn: {
@@ -134,6 +136,22 @@ export default {
   				'100%': {
   					transform: 'translateY(0)',
   					opacity: '1'
+  				}
+  			},
+  			'accordion-down': {
+  				from: {
+  					height: '0'
+  				},
+  				to: {
+  					height: 'var(--radix-accordion-content-height)'
+  				}
+  			},
+  			'accordion-up': {
+  				from: {
+  					height: 'var(--radix-accordion-content-height)'
+  				},
+  				to: {
+  					height: '0'
   				}
   			}
   		},

@@ -1,38 +1,18 @@
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
-import {
-  TrendingDown,
-  TrendingUp,
-  AlertTriangle,
-  Sparkles,
-  Download,
-  RefreshCw,
-} from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import ValidationDashboard from './ValidationDashboard';
 import ProductTable from './ProductTable';
 import { useAuth } from '@/context/AuthContext';
 
-interface Product {
-  id: string;
-  title: string;
-  description: string;
-  price: string;
-  availability: string;
-  link: string;
-  image_link: string;
-  brand?: string;
-  gtin?: string;
-  mpn?: string;
-}
+type FeedValidationToolProps = { domain: string };
 
-const FeedValidationTool = ({ domain }) => {
+const FeedValidationTool = ({ domain }: FeedValidationToolProps) => {
   const { auditFeedData } = useAuth();
   console.log(auditFeedData);
   return (
     <div className='min-h-screen '>
       <div className='container mx-auto px-6 py-8 max-w-7xl'>
         {/* Dashboard Overview */}
-        <ValidationDashboard />
+        <ValidationDashboard products={auditFeedData || []} domain={domain} />
         <ProductTable
           products={auditFeedData || []}
           title='Products '
