@@ -30,7 +30,7 @@ const playbookItem = [
     id: 4,
     title: 'Audit Shopping Feed From URL',
 
-    url: '/playbook/feed-audit',
+    url: '/playbook/audit-feed',
     description:
       'Feed Validations automatically review your product data to ensure it meets Google and channel requirements. Checks include title and description approval marketing method, formatting errors, and invalid URLs.',
     buttonText: 'Audit Feed',
